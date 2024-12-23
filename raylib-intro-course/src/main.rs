@@ -89,7 +89,7 @@ fn main() {
     let mut game_result = -1;
     let mut game_paused = false;
 
-    let player = Player {
+    let mut player = Player {
         position: Vector2::new((SCREEN_WIDTH / 2) as f32, (SCREEN_HEIGHT * 7 / 8) as f32),
         speed: Vector2::new(8.0, 0.0),
         size: Vector2::new(100.0, 24.0),
@@ -97,7 +97,7 @@ fn main() {
         lifes: PLAYER_LIFES,
     };
 
-    let ball = Ball {
+    let mut ball = Ball {
         radius: 10.0,
         active: false,
         position: Vector2::new(
@@ -131,6 +131,8 @@ fn main() {
     //println!("\n {:?} \n", target_bricks);
 
     while !rl.window_should_close() {
+        use raylib::consts::KeyboardKey::*;
+
         // ****************
         // Game state block
         // ****************
@@ -155,7 +157,53 @@ fn main() {
                     screenState = GameScreen::GAMEPLAY;
                 }
             }
-            GameScreen::GAMEPLAY => if !game_paused {},
+            GameScreen::GAMEPLAY => {
+                if !game_paused {
+                    if rl.is_key_pressed(KEY_P) {
+                        game_paused = !game_paused;
+                    }
+
+                    if !game_paused {
+                        // Player movement
+                        if rl.is_key_down(KEY_LEFT) {
+                            player.position.x -= player.speed.x;
+                        }
+                        if rl.is_key_down(KEY_RIGHT) {
+                            player.position.x += player.speed.x;
+                        }
+
+                        if player.position.x <= 0.0 {
+                            player.position.x = 0.0;
+                        }
+                        if (player.position.x + player.size.x) >= (SCREEN_WIDTH as f32) {
+                            player.position.x = (SCREEN_WIDTH as f32) - player.size.x;
+                        }
+
+                        player.bounds = Rectangle::new(
+                            player.position.x,
+                            player.position.y,
+                            player.size.x,
+                            player.size.y,
+                        );
+
+                        if ball.active {
+                            // Ball movement logic
+                            ball.position.x += ball.speed.x;
+                            ball.position.y += ball.speed.y;
+
+                            // Collision logic: ball vs screen-limits
+                            if (ball.position.x + ball.radius) > (SCREEN_WIDTH as f32)
+                                || (ball.position.x - ball.radius) <= 0.0
+                            {
+                                ball.speed *= -1.0;
+                            }
+                            if (ball.position.y - ball.radius) <= 0.0 {
+                                ball.speed *= -1.0;
+                            }
+                        }
+                    }
+                }
+            }
             GameScreen::ENDING => {
                 frames_counter += 1;
                 if rl.is_key_pressed(KEY_ENTER) {
