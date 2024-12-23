@@ -11,6 +11,8 @@ Once raylib is installed (default shared library and header files are in /usr/lo
 
 # Getting Started with Raylib-Rust
 
+Before everything else, clone raylib source code from Github then compile and install the library to your system (see the section above). Cargo will need the raylib library as a prerequisite, sourced through `LD_LIBRARY_PATH`, to build the `raylib-sys` crate.
+
 Make sure the necessary dependies are in place within `Cargo.toml` and you're ready to go. 
 ```
 [dependencies]
