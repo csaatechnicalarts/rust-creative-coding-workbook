@@ -200,6 +200,32 @@ fn main() {
                             if (ball.position.y - ball.radius) <= 0.0 {
                                 ball.speed *= -1.0;
                             }
+
+                            // Game ending logic
+                            if (ball.position.y + ball.radius) >= (SCREEN_HEIGHT as f32) {
+                                ball.position.x = player.position.x + player.size.x / 2.0;
+                                ball.position.y = player.position.y - ball.radius - 1.0;
+                                ball.speed.x = 0.0;
+                                ball.speed.y = 0.0;
+                                ball.active = false;
+
+                                player.lifes -= 1;
+                            }
+
+                            if player.lifes < 0 {
+                                screenState = GameScreen::ENDING;
+                                player.lifes = PLAYER_LIFES;
+                                frames_counter = 0;
+                            }
+                        } else {
+                            // Ret ball position to track player's position
+                            ball.position.x = player.position.x + player.size.x / 2.0;
+
+                            if rl.is_key_pressed(KEY_SPACE) {
+                                // Activate the ball and resume the game
+                                ball.active = true;
+                                ball.speed = Vector2::new(0.0, -5.0);
+                            }
                         }
                     }
                 }
@@ -284,7 +310,13 @@ fn main() {
                 }
 
                 if game_paused {
-                    //d.draw_text("GAME PAUSED", (SCREEN_WIDTH / 2, y, font_size, color);
+                    d.draw_text(
+                        "GAME PAUSED",
+                        (SCREEN_WIDTH / 2) - d.measure_text("GAME PAUSED", 40) / 2,
+                        (SCREEN_HEIGHT / 2) + 60,
+                        40,
+                        Color::GRAY,
+                    );
                 }
             }
             GameScreen::ENDING => {}
