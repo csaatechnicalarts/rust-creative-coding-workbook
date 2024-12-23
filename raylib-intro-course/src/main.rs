@@ -319,7 +319,20 @@ fn main() {
                     );
                 }
             }
-            GameScreen::ENDING => {}
+            GameScreen::ENDING => {
+                d.draw_text("ENDING SCREEN", 20, 20, 40, Color::DARKBLUE);
+
+                if ((frames_counter / 30) % 2 == 0) {
+                    d.draw_text(
+                        "PRESS [ENTER] to PLAY AGAIN",
+                        d.get_screen_width() / 2
+                            - d.measure_text("PRESS [ENTER] to PLAY AGAIN", 20) / 2,
+                        d.get_screen_height() / 2 + 80,
+                        20,
+                        Color::GRAY,
+                    );
+                }
+            }
             _ => (),
         }
 
