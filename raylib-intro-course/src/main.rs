@@ -78,7 +78,7 @@ fn main() {
 
     let (mut rl, thread) = raylib::init()
         .size(SCREEN_WIDTH, SCREEN_HEIGHT)
-        .title("02 PROJECT: BLOCKS GAME")
+        .title("03 PROJECT: BLOCKS GAME")
         .build();
 
     // Approx 1 frame refresh amounts to 1 second.
