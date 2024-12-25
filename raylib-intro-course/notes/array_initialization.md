@@ -63,8 +63,12 @@ impl BrickField {
         }
     }
 
-    fn get_mut(&mut self, x: i32, y: i32) -> &mut Brick {
-        &mut self.bricks[((y * BRICKS_LINES) + x) as usize]
+    fn get_mut(&mut self, x: i32, y: i32) -> Result<&mut Brick, &'static str> {
+        if x >= BRICKS_LINES || y >= BRICKS_PER_LINE {
+            return Err("Out bounds access to BrickField");
+        }
+
+        Ok(&mut self.bricks[((y * BRICKS_LINES) + x) as usize])
     }
 }
 ```
