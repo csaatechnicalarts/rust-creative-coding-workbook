@@ -80,23 +80,26 @@ And here is how we initialize our array-of-structs:
 let mut target_bricks = BrickField::new();
 
 for j in 0..BRICKS_LINES {
-    for i in 0..BRICKS_PER_LINE {
-        let brick = target_bricks.get_mut(j, i);
-        brick.size = Vector2::new((SCREEN_WIDTH / BRICKS_PER_LINE) as f32, 20.0);
-        brick.position = Vector2::new(
-            ((i as f32) * brick.size.x),
-            (j as f32) * brick.size.y + (BRICKS_POSITION_Y as f32),
-        );
-        brick.bounds = Rectangle::new(
-            brick.position.x,
-            brick.position.y,
-            brick.size.x,
-            brick.size.y,
-        );
-        brick.resistance = 0;
-        brick.active = true;
+        for i in 0..BRICKS_PER_LINE {
+            let brick = target_bricks.get_mut(j, i).unwrap_or_else(|err| {
+                println!("Game Logic: {} : x = {}, y = {}", err, i, j);
+                process::exit(1);
+            });
+            brick.size = Vector2::new((SCREEN_WIDTH / BRICKS_PER_LINE) as f32, 20.0);
+            brick.position = Vector2::new(
+                ((i as f32) * brick.size.x),
+                (j as f32) * brick.size.y + (BRICKS_POSITION_Y as f32),
+            );
+            brick.bounds = Rectangle::new(
+                brick.position.x,
+                brick.position.y,
+                brick.size.x,
+                brick.size.y,
+            );
+            brick.resistance = 0;
+            brick.active = true;
+        }
     }
-}
 ```
 
 References:
