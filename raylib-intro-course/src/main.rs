@@ -3,6 +3,7 @@
 use ::array_init::array_init;
 use raylib::ffi::KeyboardKey::KEY_ENTER;
 use raylib::prelude::*;
+use std::process;
 
 const SCREEN_WIDTH: i32 = 800;
 const SCREEN_HEIGHT: i32 = 450;
@@ -66,8 +67,12 @@ impl BrickField {
         }
     }
 
-    fn get_mut(&mut self, x: i32, y: i32) -> &mut Brick {
-        &mut self.bricks[((y * BRICKS_LINES) + x) as usize]
+    fn get_mut(&mut self, x: i32, y: i32) -> Result<&mut Brick, &'static str> {
+        if x >= BRICKS_LINES || y >= BRICKS_PER_LINE {
+            return Err("Out bounds access to BrickField");
+        }
+
+        Ok(&mut self.bricks[((y * BRICKS_LINES) + x) as usize])
     }
 }
 
@@ -111,7 +116,10 @@ fn main() {
 
     for j in 0..BRICKS_LINES {
         for i in 0..BRICKS_PER_LINE {
-            let brick = target_bricks.get_mut(j, i);
+            let brick = target_bricks.get_mut(j, i).unwrap_or_else(|err| {
+                println!("Game Logic: {} : x = {}, y = {}", err, i, j);
+                process::exit(1);
+            });
             brick.size = Vector2::new((SCREEN_WIDTH / BRICKS_PER_LINE) as f32, 20.0);
             brick.position = Vector2::new(
                 ((i as f32) * brick.size.x),
@@ -282,7 +290,10 @@ fn main() {
 
                 for j in 0..BRICKS_LINES {
                     for i in 0..BRICKS_PER_LINE {
-                        let brick = target_bricks.get_mut(j, i);
+                        let brick = target_bricks.get_mut(j, i).unwrap_or_else(|err| {
+                            println!("Game Logic: {} : x = {}, y = {}", err, i, j);
+                            process::exit(1);
+                        });
                         if brick.active {
                             if (i + j) % 2 == 0 {
                                 d.draw_rectangle(
