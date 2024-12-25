@@ -100,7 +100,7 @@ fn main() {
     rl.set_target_fps(60);
 
     let mut screenState = GameScreen::LOGO;
-    let mut frames_counter: i64 = 0;
+    let mut frames_counter: u64 = 0;
     let mut game_result = -1;
     let mut game_paused = false;
 
