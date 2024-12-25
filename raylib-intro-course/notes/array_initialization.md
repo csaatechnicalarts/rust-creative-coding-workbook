@@ -25,7 +25,7 @@ In a number of discussions online, people propose using vectors-of-vectors, whic
    
 2. Code the 2D array as a one-dimensional array of bricks embedded in another struct. For the `new()` method of this second struct, we call on `::array-init::array_init()` (yes, mind the spelling there!), a closure that calls the `new()` method of the embedded brick struct to initialize each element of the array.
 
-To retain the array-like interface of the original C code, we also implement another method in the second struct that maps a `[i][j]` indices to the one-dimensional array, returning a mutable reference to the specific brick struct. (*TODO*: Put in out-of-bound-indices checking in the `get_mut()` method. Also return a `Result` instead.)
+To retain the array-like interface of the original C code, we also implement another method in the second struct that maps a `[i][j]` indices to the one-dimensional array, returning a mutable reference to the specific brick struct. 
 
 ```
 use ::array_init::array_init;
