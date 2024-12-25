@@ -356,11 +356,5 @@ fn main() {
             }
             _ => (),
         }
-
-        /*
-        for i in 0..player.lifes {
-            d.draw_rectangle(20 + 40*i, SCREEN_HEIGHT - 30, 35, 10, Color::LIGHTGRAY);
-        }
-        */
     }
 }
