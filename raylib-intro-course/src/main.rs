@@ -234,7 +234,7 @@ fn main() {
                                 // Observations about the collision. When the ball strikes from
                                 // the left of the player-center, the ball ricochets back leftwards;
                                 // striking on the right of the player center, the ball bounces
-                                // back rightwards. The close the ball is to the player-center on the x-axis,
+                                // back rightwards. The closer the ball is to the player-center on the x-axis,
                                 // the smaller the resulting ball.speed.x (angle of reflection is more acute);
                                 // the oppsite holds the further away the ball is from the player-center
                                 // (angle of reflection is more obtuse). In any case, the speed is
