@@ -74,6 +74,16 @@ impl BrickField {
 
         Ok(&mut self.bricks[((y * BRICKS_LINES) + x) as usize])
     }
+
+    fn get(&mut self, x: i32, y: i32) -> Result<&Brick, &'static str> {
+        let retval = self.get_mut(x, y).unwrap_or_else(|err| {
+            println!("Game Logic: {} : x = {}, y = {}", err, x, y);
+            process::exit(1);
+        });
+
+        // Upgrade the mutable reference to a more restrictive reference binding.
+        return Ok(&*retval);
+    }
 }
 
 fn main() {
@@ -290,7 +300,7 @@ fn main() {
 
                 for j in 0..BRICKS_LINES {
                     for i in 0..BRICKS_PER_LINE {
-                        let brick = target_bricks.get_mut(j, i).unwrap_or_else(|err| {
+                        let brick = target_bricks.get(j, i).unwrap_or_else(|err| {
                             println!("Game Logic: {} : x = {}, y = {}", err, i, j);
                             process::exit(1);
                         });
