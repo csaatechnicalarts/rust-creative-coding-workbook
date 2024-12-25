@@ -301,7 +301,7 @@ fn main() {
                 for j in 0..BRICKS_LINES {
                     for i in 0..BRICKS_PER_LINE {
                         let brick = target_bricks.get(j, i).unwrap_or_else(|err| {
-                            println!("Game Logic: {} : x = {}, y = {}", err, i, j);
+                            println!("Draw Logic: {} : x = {}, y = {}", err, i, j);
                             process::exit(1);
                         });
                         if brick.active {
