@@ -192,134 +192,132 @@ fn main() {
                 }
             }
             GameScreen::GAMEPLAY => {
+                if rl.is_key_pressed(KEY_P) {
+                    game_paused = !game_paused;
+                }
+
                 if !game_paused {
-                    if rl.is_key_pressed(KEY_P) {
-                        game_paused = !game_paused;
+                    // Player movement
+                    if rl.is_key_down(KEY_LEFT) {
+                        player.position.x -= player.speed.x;
+                    }
+                    if rl.is_key_down(KEY_RIGHT) {
+                        player.position.x += player.speed.x;
                     }
 
-                    if !game_paused {
-                        // Player movement
-                        if rl.is_key_down(KEY_LEFT) {
-                            player.position.x -= player.speed.x;
+                    if player.position.x <= 0.0 {
+                        player.position.x = 0.0;
+                    }
+                    if (player.position.x + player.size.x) >= (SCREEN_WIDTH as f32) {
+                        player.position.x = (SCREEN_WIDTH as f32) - player.size.x;
+                    }
+
+                    player.bounds = Rectangle::new(
+                        player.position.x,
+                        player.position.y,
+                        player.size.x,
+                        player.size.y,
+                    );
+
+                    if ball.active {
+                        // Ball movement logic
+                        ball.position.x += ball.speed.x;
+                        ball.position.y += ball.speed.y;
+
+                        // Collision logic: ball vs screen-limits
+
+                        /* if (((ball.position.x + ball.radius) >= screenWidth) || ((ball.position.x - ball.radius) <= 0))
+                                            ball.speed.x *= -1;
+                                        if ((ball.position.y - ball.radius) <= 0)
+                                            ball.speed.y *= -1;
+                        */
+
+                        if (ball.position.x + ball.radius) > (SCREEN_WIDTH as f32)
+                            || (ball.position.x - ball.radius) <= 0.0
+                        {
+                            ball.speed *= -1.0;
                         }
-                        if rl.is_key_down(KEY_RIGHT) {
-                            player.position.x += player.speed.x;
+                        if (ball.position.y - ball.radius) <= 0.0 {
+                            ball.speed *= -1.0;
                         }
 
-                        if player.position.x <= 0.0 {
-                            player.position.x = 0.0;
+                        // *********************************************
+                        // LESSON 04: Collision detection and resolution
+                        // *********************************************
+
+                        // NOTE: For collisions we consider elements bounds parameters,
+                        // that's independent of elements drawing but they should match texture parameters
+
+                        // Collision logic: ball vs player
+                        if player
+                            .bounds
+                            .check_collision_circle_rec(ball.position, ball.radius)
+                        {
+                            ball.speed.y *= -1.0;
+
+                            // Observations about the collision. When the ball strikes from
+                            // the left of the player-center, the ball ricochets back leftwards;
+                            // striking on the right of the player center, the ball bounces
+                            // back rightwards. The closer the ball is to the player-center on the x-axis,
+                            // the smaller the resulting ball.speed.x (angle of reflection is more acute);
+                            // the oppsite holds the further away the ball is from the player-center
+                            // (angle of reflection is more obtuse). In any case, the speed is
+                            // multiplied 5x.
+
+                            ball.speed.x = (ball.position.x
+                                - (player.position.x + player.size.x / 2.0))
+                                / player.size.x
+                                * 5.0;
                         }
-                        if (player.position.x + player.size.x) >= (SCREEN_WIDTH as f32) {
-                            player.position.x = (SCREEN_WIDTH as f32) - player.size.x;
-                        }
 
-                        player.bounds = Rectangle::new(
-                            player.position.x,
-                            player.position.y,
-                            player.size.x,
-                            player.size.y,
-                        );
+                        // Collision logic: ball vs bricks
 
-                        if ball.active {
-                            // Ball movement logic
-                            ball.position.x += ball.speed.x;
-                            ball.position.y += ball.speed.y;
+                        for j in 0..BRICKS_LINES {
+                            for i in 0..BRICKS_PER_LINE {
+                                let brick = target_bricks.get_mut(j, i).unwrap_or_else(|err| {
+                                    println!(
+                                        "Ball vs brick game logic: {} : x = {}, y = {}",
+                                        err, i, j
+                                    );
+                                    process::exit(1);
+                                });
+                                if brick.active
+                                    && brick
+                                        .bounds
+                                        .check_collision_circle_rec(ball.position, ball.radius)
+                                {
+                                    brick.active = false;
+                                    ball.speed.y *= -1.0;
 
-                            // Collision logic: ball vs screen-limits
-
-                            /* if (((ball.position.x + ball.radius) >= screenWidth) || ((ball.position.x - ball.radius) <= 0))
-                                               ball.speed.x *= -1;
-                                           if ((ball.position.y - ball.radius) <= 0)
-                                               ball.speed.y *= -1;
-                            */
-
-                            if (ball.position.x + ball.radius) > (SCREEN_WIDTH as f32)
-                                || (ball.position.x - ball.radius) <= 0.0
-                            {
-                                ball.speed *= -1.0;
-                            }
-                            if (ball.position.y - ball.radius) <= 0.0 {
-                                ball.speed *= -1.0;
-                            }
-
-                            // *********************************************
-                            // LESSON 04: Collision detection and resolution
-                            // *********************************************
-
-                            // NOTE: For collisions we consider elements bounds parameters,
-                            // that's independent of elements drawing but they should match texture parameters
-
-                            // Collision logic: ball vs player
-                            if player
-                                .bounds
-                                .check_collision_circle_rec(ball.position, ball.radius)
-                            {
-                                ball.speed.y *= -1.0;
-
-                                // Observations about the collision. When the ball strikes from
-                                // the left of the player-center, the ball ricochets back leftwards;
-                                // striking on the right of the player center, the ball bounces
-                                // back rightwards. The closer the ball is to the player-center on the x-axis,
-                                // the smaller the resulting ball.speed.x (angle of reflection is more acute);
-                                // the oppsite holds the further away the ball is from the player-center
-                                // (angle of reflection is more obtuse). In any case, the speed is
-                                // multiplied 5x.
-
-                                ball.speed.x = (ball.position.x
-                                    - (player.position.x + player.size.x / 2.0))
-                                    / player.size.x
-                                    * 5.0;
-                            }
-
-                            // Collision logic: ball vs bricks
-
-                            for j in 0..BRICKS_LINES {
-                                for i in 0..BRICKS_PER_LINE {
-                                    let brick = target_bricks.get_mut(j, i).unwrap_or_else(|err| {
-                                        println!(
-                                            "Ball vs brick game logic: {} : x = {}, y = {}",
-                                            err, i, j
-                                        );
-                                        process::exit(1);
-                                    });
-                                    if brick.active
-                                        && brick
-                                            .bounds
-                                            .check_collision_circle_rec(ball.position, ball.radius)
-                                    {
-                                        brick.active = false;
-                                        ball.speed.y *= -1.0;
-
-                                        break;
-                                    }
+                                    break;
                                 }
                             }
+                        }
 
-                            // Game ending logic
-                            if (ball.position.y + ball.radius) >= (SCREEN_HEIGHT as f32) {
-                                ball.position.x = player.position.x + player.size.x / 2.0;
-                                ball.position.y = player.position.y - ball.radius - 1.0;
-                                ball.speed.x = 0.0;
-                                ball.speed.y = 0.0;
-                                ball.active = false;
-
-                                player.lifes -= 1;
-                            }
-
-                            if player.lifes < 0 {
-                                screenState = GameScreen::ENDING;
-                                player.lifes = PLAYER_LIFES;
-                                frames_counter = 0;
-                            }
-                        } else {
-                            // Ret ball position to track player's position
+                        // Game ending logic
+                        if (ball.position.y + ball.radius) >= (SCREEN_HEIGHT as f32) {
                             ball.position.x = player.position.x + player.size.x / 2.0;
+                            ball.position.y = player.position.y - ball.radius - 1.0;
+                            ball.speed.x = 0.0;
+                            ball.speed.y = 0.0;
+                            ball.active = false;
 
-                            if rl.is_key_pressed(KEY_SPACE) {
-                                // Activate the ball and resume the game
-                                ball.active = true;
-                                ball.speed = Vector2::new(0.0, -5.0);
-                            }
+                            player.lifes -= 1;
+                        }
+
+                        if player.lifes < 0 {
+                            screenState = GameScreen::ENDING;
+                            player.lifes = PLAYER_LIFES;
+                            frames_counter = 0;
+                        }
+                    } else {
+                        // Ret ball position to track player's position
+                        ball.position.x = player.position.x + player.size.x / 2.0;
+
+                        if rl.is_key_pressed(KEY_SPACE) {
+                            // Activate the ball and resume the game
+                            ball.active = true;
+                            ball.speed = Vector2::new(0.0, -5.0);
                         }
                     }
                 }
