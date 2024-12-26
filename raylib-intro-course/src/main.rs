@@ -337,13 +337,9 @@ fn main() {
 
         match screenState {
             GameScreen::LOGO => {
-                /* d.draw_text("LOGO SCREEN", 20, 20, 40, Color::LIGHTGRAY);
-                               d.draw_text("WAIT for 3 SECONDS ...", 290, 220, 20, Color::GRAY);
-                */
-
                 d.draw_texture(
                     &tex_logo,
-                    (SCREEN_WIDTH / 2) - tex_logo.width,
+                    (SCREEN_WIDTH / 2) - (tex_logo.width / 2),
                     (SCREEN_HEIGHT / 2) - (tex_logo.height / 2),
                     Color::WHITE,
                 );
