@@ -1,7 +1,6 @@
 #![allow(warnings)]
 
 use ::array_init::array_init;
-use raylib::ffi::KeyboardKey::KEY_ENTER;
 use raylib::prelude::*;
 use std::process;
 
@@ -148,7 +147,22 @@ fn main() {
     //println!("\n {:?} \n", target_bricks);
 
     // LESSON 05: Textures loading and drawing
-    let tex_paddle = rl.load_texture(&thread, "resource/paddle.png").unwrap();
+
+    let tex_logo = rl
+        .load_texture(
+            &thread,
+            "../../raylib-intro-course/resource/raylib_logo.png",
+        )
+        .unwrap();
+    let tex_paddle = rl
+        .load_texture(&thread, "../../raylib-intro-course/resource/paddle.png")
+        .unwrap();
+    let tex_ball = rl
+        .load_texture(&thread, "../../raylib-intro-course/resource/ball.png")
+        .unwrap();
+    let tex_brick = rl
+        .load_texture(&thread, "../../raylib-intro-course/resource/brick.png")
+        .unwrap();
 
     while !rl.window_should_close() {
         use raylib::consts::KeyboardKey::*;
@@ -323,9 +337,18 @@ fn main() {
 
         match screenState {
             GameScreen::LOGO => {
-                d.draw_text("LOGO SCREEN", 20, 20, 40, Color::LIGHTGRAY);
-                d.draw_text("WAIT for 3 SECONDS ...", 290, 220, 20, Color::GRAY);
+                /* d.draw_text("LOGO SCREEN", 20, 20, 40, Color::LIGHTGRAY);
+                               d.draw_text("WAIT for 3 SECONDS ...", 290, 220, 20, Color::GRAY);
+                */
+
+                d.draw_texture(
+                    &tex_logo,
+                    (SCREEN_WIDTH / 2) - tex_logo.width,
+                    (SCREEN_HEIGHT / 2) - (tex_logo.height / 2),
+                    Color::WHITE,
+                );
             }
+
             GameScreen::TITLE => {
                 //d.draw_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Color::GREEN);
                 d.draw_text("TITLE SCREEN", 20, 20, 40, Color::DARKGREEN);
@@ -341,17 +364,15 @@ fn main() {
             }
             GameScreen::GAMEPLAY => {
                 // *************************************************
-                // LESSON 02: Draw basic shapes (circle, rectangle).
+                // LESSON 05: Textures, loading and drawing
                 // *************************************************
-                /*d.draw_rectangle(
-                    player.position.x as i32,
-                    player.position.y as i32,
-                    player.size.x as i32,
-                    player.size.y as i32,
-                    Color::BLACK,
-                );*/
 
-                d.draw_circle_v(ball.position, ball.radius, Color::MAROON);
+                d.draw_texture(
+                    &tex_ball,
+                    (ball.position.x - (ball.radius / 2.0)) as i32,
+                    (ball.position.y - (ball.radius / 2.0)) as i32,
+                    Color::MAROON,
+                );
 
                 for j in 0..BRICKS_LINES {
                     for i in 0..BRICKS_PER_LINE {
@@ -361,21 +382,21 @@ fn main() {
                         });
                         if brick.active {
                             if (i + j) % 2 == 0 {
-                                d.draw_rectangle(
-                                    (brick.position.x as i32),
-                                    (brick.position.y as i32),
-                                    (brick.size.x as i32),
-                                    (brick.size.y as i32),
+                                d.draw_texture(
+                                    &tex_brick,
+                                    brick.position.x as i32,
+                                    brick.position.y as i32,
                                     Color::GRAY,
                                 );
+                            // DrawTextureEx(texBrick, bricks[j][i].position, 0.0f, 1.0f, GRAY);
                             } else {
-                                d.draw_rectangle(
-                                    (brick.position.x as i32),
-                                    (brick.position.y as i32),
-                                    (brick.size.x as i32),
-                                    (brick.size.y as i32),
+                                d.draw_texture(
+                                    &tex_brick,
+                                    brick.position.x as i32,
+                                    brick.position.y as i32,
                                     Color::DARKGRAY,
                                 );
+                                // DrawTextureEx(texBrick, bricks[j][i].position, 0.0f, 1.0f, DARKGRAY);
                             }
                         }
                     }
