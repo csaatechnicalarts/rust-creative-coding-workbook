@@ -3,3 +3,9 @@ Seeing as Git isn't great in dealing with binaries, the multimedia assets for th
 folder of the workspace from the original source:
 
 https://github.com/raysan5/raylib-intro-course/tree/main/lessons/resources
+
+Note, a useful tool for downloading the contents of a repo folder hosted on Github:
+
+https://downgit.github.io/#/home
+
+Simply supply the URL of the particular folder.
