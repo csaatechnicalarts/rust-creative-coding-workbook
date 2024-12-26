@@ -168,7 +168,7 @@ fn main() {
         use raylib::consts::KeyboardKey::*;
 
         // ****************
-        // Game state block
+        // Game State block
         // ****************
 
         match screenState {
@@ -226,6 +226,13 @@ fn main() {
                             ball.position.y += ball.speed.y;
 
                             // Collision logic: ball vs screen-limits
+
+                            /* if (((ball.position.x + ball.radius) >= screenWidth) || ((ball.position.x - ball.radius) <= 0))
+                                               ball.speed.x *= -1;
+                                           if ((ball.position.y - ball.radius) <= 0)
+                                               ball.speed.y *= -1;
+                            */
+
                             if (ball.position.x + ball.radius) > (SCREEN_WIDTH as f32)
                                 || (ball.position.x - ball.radius) <= 0.0
                             {
@@ -332,7 +339,7 @@ fn main() {
         d.clear_background(Color::WHITE);
 
         // **********
-        // Draw block
+        // Game Draw block
         // **********
 
         match screenState {
@@ -364,6 +371,13 @@ fn main() {
                 // *************************************************
 
                 d.draw_texture(
+                    &tex_paddle,
+                    player.position.x as i32,
+                    player.position.y as i32,
+                    Color::WHITE,
+                );
+
+                d.draw_texture(
                     &tex_ball,
                     (ball.position.x - (ball.radius / 2.0)) as i32,
                     (ball.position.y - (ball.radius / 2.0)) as i32,
@@ -384,7 +398,6 @@ fn main() {
                                     brick.position.y as i32,
                                     Color::GRAY,
                                 );
-                            // DrawTextureEx(texBrick, bricks[j][i].position, 0.0f, 1.0f, GRAY);
                             } else {
                                 d.draw_texture(
                                     &tex_brick,
@@ -392,7 +405,6 @@ fn main() {
                                     brick.position.y as i32,
                                     Color::DARKGRAY,
                                 );
-                                // DrawTextureEx(texBrick, bricks[j][i].position, 0.0f, 1.0f, DARKGRAY);
                             }
                         }
                     }
@@ -401,14 +413,6 @@ fn main() {
                 // **************************************
                 // LESSON 05: Texture loading and drawing
                 // **************************************
-
-                //DrawTextureEx(texPaddle, player.position, 0.0f, 1.0f, WHITE);
-                d.draw_texture(
-                    &tex_paddle,
-                    player.position.x as i32,
-                    player.position.y as i32,
-                    Color::WHITE,
-                );
 
                 for i in 0..player.lifes {
                     d.draw_rectangle(20 + 40 * i, SCREEN_HEIGHT - 30, 35, 10, Color::LIGHTGRAY);
