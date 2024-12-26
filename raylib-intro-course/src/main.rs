@@ -93,7 +93,7 @@ fn main() {
 
     let (mut rl, thread) = raylib::init()
         .size(SCREEN_WIDTH, SCREEN_HEIGHT)
-        .title("04 PROJECT: BLOCKS GAME")
+        .title("05 PROJECT: BLOCKS GAME")
         .build();
 
     // Approx 1 frame refresh amounts to 1 second.
@@ -145,8 +145,10 @@ fn main() {
             brick.active = true;
         }
     }
-
     //println!("\n {:?} \n", target_bricks);
+
+    // LESSON 05: Textures loading and drawing
+    let tex_paddle = rl.load_texture(&thread, "resource/paddle.png").unwrap();
 
     while !rl.window_should_close() {
         use raylib::consts::KeyboardKey::*;
@@ -219,7 +221,9 @@ fn main() {
                                 ball.speed *= -1.0;
                             }
 
+                            // *********************************************
                             // LESSON 04: Collision detection and resolution
+                            // *********************************************
 
                             // NOTE: For collisions we consider elements bounds parameters,
                             // that's independent of elements drawing but they should match texture parameters
@@ -339,13 +343,13 @@ fn main() {
                 // *************************************************
                 // LESSON 02: Draw basic shapes (circle, rectangle).
                 // *************************************************
-                d.draw_rectangle(
+                /*d.draw_rectangle(
                     player.position.x as i32,
                     player.position.y as i32,
                     player.size.x as i32,
                     player.size.y as i32,
                     Color::BLACK,
-                );
+                );*/
 
                 d.draw_circle_v(ball.position, ball.radius, Color::MAROON);
 
@@ -376,6 +380,18 @@ fn main() {
                         }
                     }
                 }
+
+                // **************************************
+                // LESSON 05: Texture loading and drawing
+                // **************************************
+
+                //DrawTextureEx(texPaddle, player.position, 0.0f, 1.0f, WHITE);
+                d.draw_texture(
+                    &tex_paddle,
+                    player.position.x as i32,
+                    player.position.y as i32,
+                    Color::WHITE,
+                );
 
                 for i in 0..player.lifes {
                     d.draw_rectangle(20 + 40 * i, SCREEN_HEIGHT - 30, 35, 10, Color::LIGHTGRAY);
