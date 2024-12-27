@@ -108,6 +108,20 @@ fn main() {
             process::exit(1);
         });
 
+    // LESSON 07: Sounds and music loading and playing
+    //let ra = RaylibAudio::init_audio_device().expect("Failed to initialize audio");
+    let ra = RaylibAudio::init_audio_device().unwrap_or_else(|err| {
+        println!("{}", err.to_string());
+        process::exit(1);
+    });
+
+    let fxStart = ra
+        .new_sound(format!("{}{}", RESOURCES_DIR, "start.wav").as_str())
+        .unwrap_or_else(|err| {
+            println!("{}", err.to_string());
+            process::exit(1);
+        });
+
     let mut screenState = GameScreen::LOGO;
     let mut frames_counter: u64 = 0;
     let mut game_result = -1;
@@ -206,6 +220,7 @@ fn main() {
 
                 if rl.is_key_pressed(KEY_ENTER) {
                     screenState = GameScreen::GAMEPLAY;
+                    fxStart.play();
                 }
             }
             GameScreen::GAMEPLAY => {
