@@ -11,6 +11,8 @@ const BRICKS_LINES: i32 = 5;
 const BRICKS_PER_LINE: i32 = 20;
 const BRICKS_POSITION_Y: i32 = 50;
 
+const RESOURCES_DIR: &str = "../../raylib-intro-course/resources/";
+
 enum GameScreen {
     LOGO,
     TITLE,
@@ -97,7 +99,10 @@ fn main() {
 
     // LESSON 06: Fonts loading and text drawing.
     let font = rl
-        .load_font(&thread, "../../raylib-intro-course/resources/setback.png")
+        .load_font(
+            &thread,
+            format!("{}{}", RESOURCES_DIR, "setback.png").as_str(),
+        )
         .unwrap_or_else(|err| {
             println!("Game Logic: {}", err);
             process::exit(1);
@@ -157,17 +162,23 @@ fn main() {
     let tex_logo = rl
         .load_texture(
             &thread,
-            "../../raylib-intro-course/resources/raylib_logo.png",
+            format!("{}{}", RESOURCES_DIR, "raylib_logo.png").as_str(),
         )
         .unwrap();
     let tex_paddle = rl
-        .load_texture(&thread, "../../raylib-intro-course/resources/paddle.png")
+        .load_texture(
+            &thread,
+            format!("{}{}", RESOURCES_DIR, "paddle.png").as_str(),
+        )
         .unwrap();
     let tex_ball = rl
-        .load_texture(&thread, "../../raylib-intro-course/resources/ball.png")
+        .load_texture(&thread, format!("{}{}", RESOURCES_DIR, "ball.png").as_str())
         .unwrap();
     let tex_brick = rl
-        .load_texture(&thread, "../../raylib-intro-course/resources/brick.png")
+        .load_texture(
+            &thread,
+            format!("{}{}", RESOURCES_DIR, "brick.png").as_str(),
+        )
         .unwrap();
 
     while !rl.window_should_close() {
