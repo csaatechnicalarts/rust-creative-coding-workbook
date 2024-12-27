@@ -1,8 +1,8 @@
 /*******************************************************************************************
 *
 *   PROJECT:        BLOCKS GAME
-*   LESSON 06:      text
-*   DESCRIPTION:    Font loading and text drawing
+*   LESSON 07:      audio
+*   DESCRIPTION:    Sounds and music loading and playing
 *
 *   COMPILATION (Windows - MinGW):
 *       gcc -o $(NAME_PART).exe $(FILE_NAME) -lraylib -lopengl32 -lgdi32 -lwinmm -Wall -std=c99
@@ -96,10 +96,21 @@ int main()
     // LESSON 06: Fonts loading and text drawing
     Font font = LoadFont("resources/setback.png");
 
+    // LESSON 07: Sounds and music loading and playing
+    InitAudioDevice(); // Initialize audio system
+
+    Sound fxStart = LoadSound("resources/start.wav");
+    Sound fxBounce = LoadSound("resources/bounce.wav");
+    Sound fxExplode = LoadSound("resources/explosion.wav");
+
+    Music music = LoadMusicStream("resources/blockshock.mod");
+
+    PlayMusicStream(music); // Start music streaming
+
     // Game required variables
     GameScreen screen = LOGO; // Current game screen state
 
-    int framesCounter = 0;   // General pourpose frames counter
+    int framesCounter = 0;   // General purpose frames counter
     int gameResult = -1;     // Game result: 0 - Loose, 1 - Win, -1 - Not defined
     bool gamePaused = false; // Game paused state toggle
 
@@ -163,7 +174,10 @@ int main()
 
             // LESSON 03: Inputs management (keyboard, mouse)
             if (IsKeyPressed(KEY_ENTER))
+            {
                 screen = GAMEPLAY;
+                PlaySound(fxStart);
+            }
         }
         break;
         case GAMEPLAY:
@@ -213,6 +227,7 @@ int main()
                     {
                         ball.speed.y *= -1;
                         ball.speed.x = (ball.position.x - (player.position.x + player.size.x / 2)) / player.size.x * 5.0f;
+                        PlaySound(fxBounce);
                     }
 
                     // Collision logic: ball vs bricks
@@ -224,6 +239,7 @@ int main()
                             {
                                 bricks[j][i].active = false;
                                 ball.speed.y *= -1;
+                                PlaySound(fxExplode);
 
                                 break;
                             }
@@ -281,6 +297,10 @@ int main()
         default:
             break;
         }
+
+        // LESSON 07: Sounds and music loading and playing
+        // NOTE: Music buffers must be refilled if consumed
+        UpdateMusicStream(music);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -399,6 +419,15 @@ int main()
 
     // LESSON 06: Fonts loading and text drawing
     UnloadFont(font);
+
+    // LESSON 07: Sounds and music loading and playing
+    UnloadSound(fxStart);
+    UnloadSound(fxBounce);
+    UnloadSound(fxExplode);
+
+    UnloadMusicStream(music); // Unload music streaming buffers
+
+    CloseAudioDevice(); // Close audio device connection
 
     CloseWindow(); // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
