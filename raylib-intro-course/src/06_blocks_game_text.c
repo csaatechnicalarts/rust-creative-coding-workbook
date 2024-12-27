@@ -1,8 +1,8 @@
 /*******************************************************************************************
 *
 *   PROJECT:        BLOCKS GAME
-*   LESSON 05:      textures
-*   DESCRIPTION:    Textures loading and drawing
+*   LESSON 06:      text
+*   DESCRIPTION:    Font loading and text drawing
 *
 *   COMPILATION (Windows - MinGW):
 *       gcc -o $(NAME_PART).exe $(FILE_NAME) -lraylib -lopengl32 -lgdi32 -lwinmm -Wall -std=c99
@@ -85,13 +85,16 @@ int main()
     // LESSON 01: Window initialization and screens management
     InitWindow(screenWidth, screenHeight, "PROJECT: BLOCKS GAME");
 
-    // NOTE: Load ../resource (textures, fonts, audio) after Window initialization
+    // NOTE: Load resources (textures, fonts, audio) after Window initialization
 
     // LESSON 05: Textures loading and drawing
-    Texture2D texLogo = LoadTexture("../resource/raylib_logo.png");
-    Texture2D texBall = LoadTexture("../resource/ball.png");
-    Texture2D texPaddle = LoadTexture("../resource/paddle.png");
-    Texture2D texBrick = LoadTexture("../resource/brick.png");
+    Texture2D texLogo = LoadTexture("resources/raylib_logo.png");
+    Texture2D texBall = LoadTexture("resources/ball.png");
+    Texture2D texPaddle = LoadTexture("resources/paddle.png");
+    Texture2D texBrick = LoadTexture("resources/brick.png");
+
+    // LESSON 06: Fonts loading and text drawing
+    Font font = LoadFont("resources/setback.png");
 
     // Game required variables
     GameScreen screen = LOGO; // Current game screen state
@@ -300,7 +303,8 @@ int main()
         {
             // Draw TITLE screen here!
 
-            DrawText("TITLE SCREEN", 20, 20, 40, DARKGREEN);
+            // LESSON 06: Fonts loading and text drawing
+            DrawTextEx(font, "BLOCKS", (Vector2){100, 80}, 160, 10, MAROON); // Draw Title
 
             if ((framesCounter / 30) % 2 == 0)
                 DrawText("PRESS [ENTER] to START", GetScreenWidth() / 2 - MeasureText("PRESS [ENTER] to START", 20) / 2, GetScreenHeight() / 2 + 60, 20, DARKGRAY);
@@ -367,7 +371,9 @@ int main()
         {
             // Draw END screen here!
 
-            DrawText("ENDING SCREEN", 20, 20, 40, DARKBLUE);
+            // LESSON 06: Fonts loading and text drawing
+            // Draw ending message
+            DrawTextEx(font, "GAME FINISHED", (Vector2){80, 100}, 80, 6, MAROON);
 
             if ((framesCounter / 30) % 2 == 0)
                 DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth() / 2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20) / 2, GetScreenHeight() / 2 + 80, 20, GRAY);
@@ -384,12 +390,15 @@ int main()
     // De-Initialization
     //--------------------------------------------------------------------------------------
 
-    // NOTE: Unload any loaded ../resource (texture, fonts, audio)
+    // NOTE: Unload any loaded resources (texture, fonts, audio)
 
     // LESSON 05: Textures loading and drawing
     UnloadTexture(texBall);
     UnloadTexture(texPaddle);
     UnloadTexture(texBrick);
+
+    // LESSON 06: Fonts loading and text drawing
+    UnloadFont(font);
 
     CloseWindow(); // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
