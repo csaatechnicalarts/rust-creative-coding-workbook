@@ -89,11 +89,19 @@ fn main() {
 
     let (mut rl, thread) = raylib::init()
         .size(SCREEN_WIDTH, SCREEN_HEIGHT)
-        .title("05 PROJECT: BLOCKS GAME")
+        .title("06 PROJECT: BLOCKS GAME")
         .build();
 
     // Approx 1 frame refresh amounts to 1 second.
     rl.set_target_fps(60);
+
+    // LESSON 06: Fonts loading and text drawing.
+    let font = rl
+        .load_font(&thread, "../../raylib-intro-course/resources/setback.png")
+        .unwrap_or_else(|err| {
+            println!("Game Logic: {}", err);
+            process::exit(1);
+        });
 
     let mut screenState = GameScreen::LOGO;
     let mut frames_counter: u64 = 0;
@@ -149,17 +157,17 @@ fn main() {
     let tex_logo = rl
         .load_texture(
             &thread,
-            "../../raylib-intro-course/resource/raylib_logo.png",
+            "../../raylib-intro-course/resources/raylib_logo.png",
         )
         .unwrap();
     let tex_paddle = rl
-        .load_texture(&thread, "../../raylib-intro-course/resource/paddle.png")
+        .load_texture(&thread, "../../raylib-intro-course/resources/paddle.png")
         .unwrap();
     let tex_ball = rl
-        .load_texture(&thread, "../../raylib-intro-course/resource/ball.png")
+        .load_texture(&thread, "../../raylib-intro-course/resources/ball.png")
         .unwrap();
     let tex_brick = rl
-        .load_texture(&thread, "../../raylib-intro-course/resource/brick.png")
+        .load_texture(&thread, "../../raylib-intro-course/resources/brick.png")
         .unwrap();
 
     while !rl.window_should_close() {
@@ -344,7 +352,16 @@ fn main() {
 
             GameScreen::TITLE => {
                 //d.draw_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Color::GREEN);
-                d.draw_text("TITLE SCREEN", 20, 20, 40, Color::DARKGREEN);
+                //d.draw_text("TITLE SCREEN", 20, 20, 40, Color::DARKGREEN);
+                d.draw_text_ex(
+                    &font,
+                    "BLOCKS",
+                    Vector2::new(100.0, 80.0),
+                    160.0,
+                    10.0,
+                    Color::MAROON,
+                );
+
                 if (frames_counter / 30) % 2 == 0 {
                     d.draw_text(
                         "PRESS [ENTER] to START",
