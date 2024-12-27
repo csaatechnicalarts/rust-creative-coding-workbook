@@ -21,16 +21,16 @@ How do we translate this to Rust?
 
 In a number of discussions online, people propose using vectors-of-vectors, which seems convoluted and a few steps away from the array-like semantics of the original C implementation. An elegant solution using the **array-init crate** came up [here](https://users.rust-lang.org/t/initializing-an-array-of-structs/36586/7) (see Yandros' remark). The key take-away ideas are:
 
-1. Have the brick struct derive Clone and implement a `new()` method. This method initializes the struct fields with default (zeroed, false) values.
+1. Have the brick struct derive the Default trait and implement a `default()` method. This method initializes the struct fields with default (zeroed, false) values.
    
-2. Code the 2D array as a one-dimensional array of bricks embedded in another struct. For the `new()` method of this second struct, we call on `::array-init::array_init()` (yes, mind the spelling there!), a closure that calls the `new()` method of the embedded brick struct to initialize each element of the array.
+2. Code the 2D array as a one-dimensional array of bricks embedded in another struct. For the `default()` method of this second struct, we call on `::array-init::array_init()` (yes, mind the spelling there!), a closure that calls the `default()` method of the embedded brick struct to initialize each element of the array.
 
 To retain the array-like interface of the original C code, we also implement another method in the second struct that maps a `[i][j]` indices to the one-dimensional array, returning a mutable reference to the specific brick struct. 
 
 ```
 use ::array_init::array_init;
 
-[derive(Clone, Debug)]
+[derive(Clone, Debug, Default)]
 struct Brick {
     position: Vector2,
     size: Vector2,
@@ -40,13 +40,10 @@ struct Brick {
 }
 
 impl Brick {
-    fn new() -> Brick {
+    fn default() -> Brick {
         Brick {
-            position: Vector2::new(0.0, 0.0),
-            size: Vector2::new(0.0, 0.0),
-            bounds: Rectangle::new(0.0, 0.0, 0.0, 0.0),
-            resistance: 0,
             active: false,
+            ..Default::default()
         }
     }
 }
@@ -59,7 +56,7 @@ struct BrickField {
 impl BrickField {
     fn new() -> BrickField {
         BrickField {
-            bricks: array_init(|_| Brick::new()),
+            bricks: array_init(|_| Brick::default()),
         }
     }
 

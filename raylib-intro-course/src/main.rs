@@ -33,7 +33,7 @@ struct Ball {
     active: bool,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 struct Brick {
     position: Vector2,
     size: Vector2,
@@ -43,13 +43,10 @@ struct Brick {
 }
 
 impl Brick {
-    fn new() -> Brick {
+    fn default() -> Brick {
         Brick {
-            position: Vector2::new(0.0, 0.0),
-            size: Vector2::new(0.0, 0.0),
-            bounds: Rectangle::new(0.0, 0.0, 0.0, 0.0),
-            resistance: 0,
             active: false,
+            ..Default::default()
         }
     }
 }
@@ -62,7 +59,7 @@ struct BrickField {
 impl BrickField {
     fn new() -> BrickField {
         BrickField {
-            bricks: array_init(|_| Brick::new()),
+            bricks: array_init(|_| Brick::default()),
         }
     }
 
@@ -122,6 +119,7 @@ fn main() {
     };
 
     let mut target_bricks = BrickField::new();
+    //println!("{:#?}", target_bricks);
 
     for j in 0..BRICKS_LINES {
         for i in 0..BRICKS_PER_LINE {
@@ -225,12 +223,6 @@ fn main() {
                         ball.position.y += ball.speed.y;
 
                         // Collision logic: ball vs screen-limits
-
-                        /* if (((ball.position.x + ball.radius) >= screenWidth) || ((ball.position.x - ball.radius) <= 0))
-                                            ball.speed.x *= -1;
-                                        if ((ball.position.y - ball.radius) <= 0)
-                                            ball.speed.y *= -1;
-                        */
 
                         if (ball.position.x + ball.radius) > (SCREEN_WIDTH as f32)
                             || (ball.position.x - ball.radius) <= 0.0
