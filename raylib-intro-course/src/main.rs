@@ -97,7 +97,10 @@ fn main() {
     // Approx 1 frame refresh amounts to 1 second.
     rl.set_target_fps(60);
 
+    // ******************************************
     // LESSON 06: Fonts loading and text drawing.
+    // ******************************************
+
     let font = rl
         .load_font(
             &thread,
@@ -108,15 +111,38 @@ fn main() {
             process::exit(1);
         });
 
+    // ***********************************************
     // LESSON 07: Sounds and music loading and playing
-    //let ra = RaylibAudio::init_audio_device().expect("Failed to initialize audio");
+    // ***********************************************
+
     let ra = RaylibAudio::init_audio_device().unwrap_or_else(|err| {
         println!("{}", err.to_string());
         process::exit(1);
     });
 
-    let fxStart = ra
+    let fx_start = ra
         .new_sound(format!("{}{}", RESOURCES_DIR, "start.wav").as_str())
+        .unwrap_or_else(|err| {
+            println!("{}", err.to_string());
+            process::exit(1);
+        });
+
+    let fx_bounce = ra
+        .new_sound(format!("{}{}", RESOURCES_DIR, "bounce.wav").as_str())
+        .unwrap_or_else(|err| {
+            println!("{}", err.to_string());
+            process::exit(1);
+        });
+
+    let fx_explode = ra
+        .new_sound(format!("{}{}", RESOURCES_DIR, "explosion.wav").as_str())
+        .unwrap_or_else(|err| {
+            println!("{}", err.to_string());
+            process::exit(1);
+        });
+
+    let mut music = ra
+        .new_music(format!("{}{}", RESOURCES_DIR, "game-music-loop-8-145362.mp3").as_str())
         .unwrap_or_else(|err| {
             println!("{}", err.to_string());
             process::exit(1);
@@ -171,7 +197,9 @@ fn main() {
     }
     //println!("\n {:?} \n", target_bricks);
 
+    // ***************************************
     // LESSON 05: Textures loading and drawing
+    // ***************************************
 
     let tex_logo = rl
         .load_texture(
@@ -204,6 +232,8 @@ fn main() {
 
         match screenState {
             GameScreen::LOGO => {
+                music.set_volume(1.0);
+                music.play_stream();
                 frames_counter += 1;
                 if frames_counter > 180 {
                     // Change to TITLE screen after 3 seconds.
@@ -220,7 +250,12 @@ fn main() {
 
                 if rl.is_key_pressed(KEY_ENTER) {
                     screenState = GameScreen::GAMEPLAY;
-                    fxStart.play();
+
+                    // ***********************************************
+                    // LESSON 07: Sounds and music loading and playing
+                    // ***********************************************
+
+                    fx_start.play();
                 }
             }
             GameScreen::GAMEPLAY => {
@@ -294,6 +329,8 @@ fn main() {
                                 - (player.position.x + player.size.x / 2.0))
                                 / player.size.x
                                 * 5.0;
+
+                            fx_bounce.play();
                         }
 
                         // Collision logic: ball vs bricks
@@ -314,6 +351,7 @@ fn main() {
                                 {
                                     brick.active = false;
                                     ball.speed.y *= -1.0;
+                                    fx_explode.play();
 
                                     break;
                                 }
