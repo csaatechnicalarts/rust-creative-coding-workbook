@@ -1,4 +1,4 @@
-Seeing as Git isn't great in dealing with binaries, the multimedia assets for the project 
+[1] Seeing as Git isn't great in dealing with binaries, the multimedia assets for the project 
 (PNG, WAV, etc.) are left out of the repo. They can be fetched and placed in the resource/
 folder of the workspace from the original source:
 
@@ -9,3 +9,5 @@ Note, a useful tool for downloading the contents of a repo folder hosted on Gith
 https://downgit.github.io/#/home
 
 Simply supply the URL of the particular folder.
+
+[2] Game Music Loop 8 (.mp3) courtesy of XtremeFreddy - https://pixabay.com/users/xtremefreddy-32332307/
