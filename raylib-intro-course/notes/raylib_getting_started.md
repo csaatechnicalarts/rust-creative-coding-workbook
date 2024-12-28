@@ -19,4 +19,4 @@ Make sure the necessary dependies are in place within `Cargo.toml` and you're re
 raylib = { version = "5.0" }
 ```
 
-See the [`raylib` crate](https://docs.rs/raylib/latest/raylib/) for sample code:
+See the [`raylib` crate](https://docs.rs/raylib/latest/raylib/) for sample code to build a simple application and validate your raylib installation. For more involved projects, the [`samples`](https://github.com/deltaphc/raylib-rs/tree/master/samples) folder of the raylib crate, together with the [`core`](https://github.com/deltaphc/raylib-rs/tree/master/raylib/src/core) API implementation therein, show how to leverage the raylib Rust package.
