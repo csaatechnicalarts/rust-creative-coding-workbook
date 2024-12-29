@@ -1,0 +1,11 @@
+Seeing as Git isn't great in dealing with binaries, the multimedia assets for the project 
+(PNG, WAV, etc.) are left out of the repo. They can be fetched and placed in the resource/
+folder of the workspace from the original source:
+
+https://github.com/raysan5/raylib-intro-course/tree/main/lessons/resources
+
+Note, a useful tool for downloading the contents of a repo folder hosted on Github:
+
+https://downgit.github.io/#/home
+
+Simply supply the URL of the particular folder.

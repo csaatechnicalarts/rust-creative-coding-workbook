@@ -2,7 +2,7 @@
 
 use ::array_init::array_init;
 use raylib::prelude::*;
-use std::{process, time, thread};
+use std::{process, thread, time};
 
 const SCREEN_WIDTH: i32 = 800;
 const SCREEN_HEIGHT: i32 = 450;
@@ -12,7 +12,6 @@ const BRICKS_PER_LINE: i32 = 20;
 const BRICKS_POSITION_Y: i32 = 50;
 
 const RESOURCES_DIR: &str = "../../raylib-intro-course/resources/";
-
 
 enum GameScreen {
     LOGO,
@@ -85,6 +84,12 @@ impl BrickField {
     }
 }
 
+fn poll_soundtrack_play(s: &Sound) {
+    if !s.is_playing() {
+        s.play();
+    }
+}
+
 fn main() {
     // ********************************************************
     // LESSON 01: Window initialization and screens management.
@@ -122,33 +127,37 @@ fn main() {
         process::exit(1);
     });
 
-    let fx_start = ra
+    let mut fx_start = ra
         .new_sound(format!("{}{}", RESOURCES_DIR, "start.wav").as_str())
         .unwrap_or_else(|err| {
             println!("{}", err.to_string());
             process::exit(1);
         });
+    fx_start.set_volume((0.7));
 
-    let fx_bounce = ra
+    let mut fx_bounce = ra
         .new_sound(format!("{}{}", RESOURCES_DIR, "bounce.wav").as_str())
         .unwrap_or_else(|err| {
             println!("{}", err.to_string());
             process::exit(1);
         });
+    fx_bounce.set_volume(0.7);
 
-    let fx_explode = ra
+    let mut fx_explode = ra
         .new_sound(format!("{}{}", RESOURCES_DIR, "explosion.wav").as_str())
         .unwrap_or_else(|err| {
             println!("{}", err.to_string());
             process::exit(1);
         });
+    fx_explode.set_volume(0.7);
 
-     let mut s = ra
+    let mut s = ra
         .new_sound(format!("{}{}", RESOURCES_DIR, "Sakura-Girl-Yay-chosic.com_.mp3").as_str())
         .unwrap_or_else(|err| {
             println!("{}", err.to_string());
             process::exit(1);
         });
+    s.set_volume(1.0);
 
     let mut screenState = GameScreen::LOGO;
     let mut frames_counter: u64 = 0;
@@ -244,7 +253,6 @@ fn main() {
                 // ***********************************************
                 // LESSON 07: Sounds and music loading and playing
                 // ***********************************************
-
             }
             GameScreen::TITLE => {
                 frames_counter += 1;
@@ -264,8 +272,6 @@ fn main() {
                 }
             }
             GameScreen::GAMEPLAY => {
-                
-
                 if rl.is_key_pressed(KEY_P) {
                     game_paused = !game_paused;
                 }
@@ -422,11 +428,8 @@ fn main() {
             }
 
             GameScreen::TITLE => {
-                if !s.is_playing() {
-                    s.set_volume(1.0);
-                    s.play();
-                }
-                
+                poll_soundtrack_play(&s);
+
                 d.draw_text_ex(
                     &font,
                     "BLOCKS",
@@ -447,10 +450,8 @@ fn main() {
                 }
             }
             GameScreen::GAMEPLAY => {
-                if !s.is_playing() {
-                    s.set_volume(1.0);
-                    s.play();
-                }
+                poll_soundtrack_play(&s);
+
                 // *************************************************
                 // LESSON 05: Textures, loading and drawing
                 // *************************************************
@@ -514,11 +515,8 @@ fn main() {
                 }
             }
             GameScreen::ENDING => {
-                if !s.is_playing() {
-                    s.set_volume(1.0);
-                    s.play();
-                }
-                
+                poll_soundtrack_play(&s);
+
                 d.draw_text("ENDING SCREEN", 20, 20, 40, Color::DARKBLUE);
 
                 if ((frames_counter / 30) % 2 == 0) {
