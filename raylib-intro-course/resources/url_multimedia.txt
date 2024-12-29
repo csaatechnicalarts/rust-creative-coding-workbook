@@ -1,6 +1,4 @@
-[1] Seeing as Git isn't great in dealing with binaries, the multimedia assets for the project 
-(PNG, WAV, etc.) are left out of the repo. They can be fetched and placed in the resource/
-folder of the workspace from the original source:
+[1] The game assets for the raylib-intro-course workspace came from raysan5's repo:
 
 https://github.com/raysan5/raylib-intro-course/tree/main/lessons/resources
 
@@ -10,4 +8,9 @@ https://downgit.github.io/#/home
 
 Simply supply the URL of the particular folder.
 
-[2] Game Music Loop 8 (.mp3) courtesy of XtremeFreddy - https://pixabay.com/users/xtremefreddy-32332307/
+[2] Yay (.mp3) by Sakura Girl:
+
+Yay by Sakura Girl | https://soundcloud.com/sakuragirl_official
+Music promoted by https://www.chosic.com/free-music/all/
+Creative Commons CC BY 3.0
+https://creativecommons.org/licenses/by/3.0/
