@@ -2,7 +2,7 @@
 
 A [rangoli](https://en.wikipedia.org/wiki/Rangoli) is beautiful form of art originating in India. The idea of creating a rangoli utilizing letters from the English alphabet came from a Python programming challenge. Below are samples of the text pattern. 
 
-![](rangoli-text-samples.jpg)
+![](images/rangoli-text-samples.jpg)
 
 
 ## Command Line Interface Version
