@@ -42,7 +42,9 @@ At the root level of this repo, we build and execute the workspace using Cargo:
 
 `$>cargo build -p raylib-alpha-rangoli`
 
-`$>cargo run -p raylib-alpha-rangoli -- -n 5` - Generates the rangoli pattern using the first five letters of the alphabet, `a-e`. The text output is the first example shown above.
+`$>cargo run -p raylib-alpha-rangoli -- -n 5` 
+
+The second Cargo command uses the first five letters of the alphabet, `a-e`, to generate the rangoli pattern. The text output is the first example shown above.
 
 **Rust Alphabet Rangoli:: Raylib Version**
 
