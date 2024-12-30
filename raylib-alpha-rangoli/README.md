@@ -1,3 +1,5 @@
+# Rust Alphabet Rangoli
+
 A [rangoli](https://en.wikipedia.org/wiki/Rangoli) is beautiful form of art originating in India. The idea of creating a rangoli utilizing letters from the English alphabet came from a Python programming challenge. Below is a sample of the text output. 
 
 ```
@@ -36,7 +38,7 @@ l-k-j-i-h-g-f-e-d-c-b-a-b-c-d-e-f-g-h-i-j-k-l
 ----------------------l----------------------
 ```
 
-**Rust Alphabet Rangoli: CLI Version**
+## Command Line Interface Version
 
 At the root level of this repo, we build and execute the workspace using Cargo:
 
@@ -46,6 +48,6 @@ At the root level of this repo, we build and execute the workspace using Cargo:
 
 The second Cargo command uses the first five letters of the alphabet, `a-e`, to generate the rangoli pattern. The text output is the first example shown above.
 
-**Rust Alphabet Rangoli:: Raylib Version**
+## Raylib Version
 
 TBD.
