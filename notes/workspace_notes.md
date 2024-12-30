@@ -6,4 +6,6 @@
 
 `$> cargo run` - Builds and runs the binary `[root]/src/main.rs`.
 
-`$> cargo run -p workspace-name` - Builds and runs the binary `[root]/workspace-name/src/main.rs`.
+`$> cargo build -p <workspace-name>` - Builds and runs the binary `[root]/workspace-name/src/main.rs`.
+
+`$> cargo run -p <workspace-name> -- <cmd-line parameters>` - Executes the workspace binary, passing parameters to it.
