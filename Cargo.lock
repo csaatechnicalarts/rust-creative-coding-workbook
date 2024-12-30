@@ -466,6 +466,7 @@ name = "raylib-alpha-rangoli"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "raylib",
 ]
 
 [[package]]
