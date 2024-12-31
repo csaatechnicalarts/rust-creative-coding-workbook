@@ -11,7 +11,7 @@ pub fn print_rangoli(n: i32) {
     }
 }
 
-fn generate_rangoli_blob(n: i32) -> (Vec<String>, i32) {
+pub fn generate_rangoli_blob(n: i32) -> (Vec<String>, i32) {
     let mut rangoli_lines: Vec<String> = vec![];
     for i in (-1..=(n - 2)).rev() {
         rangoli_lines.push(print_line(n - 1, i));
@@ -19,10 +19,10 @@ fn generate_rangoli_blob(n: i32) -> (Vec<String>, i32) {
 
     let max_width = rangoli_lines.last().unwrap().len();
 
-    for line in &rangoli_lines {
+    /* for line in &rangoli_lines {
         println!("{:-^width$}", line, width = max_width);
     }
-
+ */
     let rangoli_output = &rangoli_lines[..(rangoli_lines.len() - 1)];
 
     (rangoli_lines, max_width as i32)
