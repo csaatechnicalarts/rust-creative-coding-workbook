@@ -1,7 +1,8 @@
 #![allow(warnings)]
 
 use clap::Parser;
-use raylib_alpha_rangoli::generate_rangoli_blob;
+
+pub mod rangoli;
 
 #[derive(Parser)]
 struct CliParam {
@@ -10,7 +11,7 @@ struct CliParam {
 }
 
 fn main() {
-    use raylib_alpha_rangoli::{print_rangoli, LOWER_BOUND, UPPER_BOUND};
+    use crate::rangoli::{print_rangoli, generate_rangoli_blob, LOWER_BOUND, UPPER_BOUND};
     use std::process;
     use raylib::prelude::*;
 
