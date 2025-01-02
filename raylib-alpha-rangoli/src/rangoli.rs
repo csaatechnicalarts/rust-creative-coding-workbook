@@ -4,14 +4,14 @@ pub static LOWER_BOUND: i32 = 1;
 pub static UPPER_BOUND: i32 = 26;
 
 pub fn print_rangoli(n: i32) {
-    let (rangoli_output, max_width) = generate_rangoli_blob(n);
+    let (rangoli_output, max_width) = generate_rangoli_pattern(n);
 
     for line in rangoli_output.into_iter().rev() {
         println!("{:-^width$}", line, width = max_width as usize);
     }
 }
 
-pub fn generate_rangoli_blob(n: i32) -> (Vec<String>, i32) {
+pub fn generate_rangoli_pattern(n: i32) -> (Vec<String>, i32) {
     let mut rangoli_lines: Vec<String> = vec![];
     for i in (-1..=(n - 2)).rev() {
         rangoli_lines.push(print_line(n - 1, i));
