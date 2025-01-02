@@ -9,12 +9,12 @@ pub const DEFAULT_FPS: u32 = 24;
 pub struct RLDriver<'pattern_lt> {
     rl: RaylibHandle,
     thread: RaylibThread,
-    pub fps: u32,
-    pub font: Font,
+    fps: u32,
+    font: Font,
     // Generated text pattern owned by the rangoli module.
-    pub rangoli_pattern: &'pattern_lt Vec<String>,     
+    rangoli_pattern: &'pattern_lt Vec<String>,     
     // Relative x- and y-offset of each English alphabet character based on the font set.
-    pub alpha_pos: [Vector2; 26],  
+    alpha_pos: [Vector2; 26],  
 }
 
 impl<'pattern_lt> RLDriver<'pattern_lt> {
@@ -25,9 +25,10 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
             .build();
 
         // Raylib-Rust calls Raylib-C using FFI. When font loading fails, the following Rust code
-        // does not print the expect() message, then panic. Instead, internally the C-library falls
-        // back on its default font, after printing a warning message. See rtext.c LoadBMFont() 
-        // TRACELOG message.
+        // does not execute the expect() statement. Instead, the C-library handles the fault internally: 
+        // it prints a warning message then falls back on a default font. (See the TRACELOG message 
+        // in LoadBMFont() at rtext.c.) In effect, Rust doesn't panic and abort on account of 
+        // a failure to load fonts.
 
         let font = rl.load_font(&thread, font_file.as_str()).expect("Error loading font data.");
 
