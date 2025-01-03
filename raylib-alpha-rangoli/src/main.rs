@@ -14,7 +14,7 @@ struct CliParam {
 fn main() {
     use std::process;
     use raylib::prelude::*;
-    use crate::raylib_mod::RLDriver;
+    use crate::raylib_mod::{SCREEN_HEIGHT, SCREEN_WIDTH, DEFAULT_FPS, RLDriver};
     use crate::rangoli::{print_rangoli, generate_rangoli_pattern, LOWER_BOUND, UPPER_BOUND};
 
     // *************************
@@ -35,10 +35,37 @@ fn main() {
     let (rangoli_pattern , max_size) = generate_rangoli_pattern(cli_param.number);
     //println!("{:#?}", rangoli_pattern);
 
-    // ****************************
-    // Raylib set up and call block.
-    // ****************************
-    let mut rld = RLDriver::build(String::from("resources/alpha_beta.png"), &rangoli_pattern);
+
+    // ********************
+    // Raylib set up block.
+    // ********************
+
+
+    let (mut rl, thread) = raylib::init()
+        .size(SCREEN_WIDTH, SCREEN_HEIGHT)
+        .title("Rust Alphabet Rangoli (ver. 0.9)")
+        .build();
+
+    rl.set_target_fps(DEFAULT_FPS);
+
+    // Raylib-Rust calls Raylib-C using FFI. When font loading fails, the following Rust code
+    // does not print the expect() message then panic. Instead, internally the C-library falls
+    // back on its default font, after printing a warning message. See rtext.c LoadBMFont() 
+    // TRACELOG message.
+ 
+    let font = rl.load_font(&thread, "resources/mecha.png").expect("Couldn't load font!");
+    println!("\n{:#?}", font);
+
+    let mut rangoli_pos = vec![Vector2::default(); rangoli_pattern.len()];
+
+    for i in 0..rangoli_pattern.len() {
+        rangoli_pos[i].x = (SCREEN_WIDTH as f32 / 2.0) - (rl.measure_text(&rangoli_pattern[i], 20)/2) as f32;
+        rangoli_pos[i].y = 60.0 + (15.0 * (i as f32));
+    }
+    //println!("\n{:#?}", rangoli_pos);
+
+    let mut rld = RLDriver::build(&mut rl, &thread, &font, &rangoli_pattern, &rangoli_pos);
     rld.run();
+
 }
 
