@@ -28,6 +28,7 @@ pub struct RLDriver<'pattern_lt> {
     font: &'pattern_lt Font,
     // Generated text pattern owned by the rangoli module.
     rangoli_pattern: &'pattern_lt Vec<String>,
+    // Glyph representation of the rangoli pattern to display.
     rangoli_disp: Vec<Vec<AlphaToDisplay>>,
     // X-offset of a character of the given font set.
     alpha_offsets: HashMap<char, f32>,
@@ -149,7 +150,6 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
             font,
             fps: DEFAULT_FPS,
             rangoli_pattern,
-            //rangoli_disp: outer_vec,
             rangoli_disp: rangoli_mirrored,
             alpha_offsets,
         }
