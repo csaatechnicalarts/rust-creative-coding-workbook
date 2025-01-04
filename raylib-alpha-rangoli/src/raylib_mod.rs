@@ -3,16 +3,17 @@
 use raylib::prelude::*;
 use std::collections::HashMap;
 
-pub const SCREEN_WIDTH: i32 = 800;
-pub const SCREEN_HEIGHT: i32 = 450;
+pub const SCREEN_WIDTH: i32 = 1280;
+pub const SCREEN_HEIGHT: i32 = 800;
 pub const DEFAULT_FPS: u32 = 24;
-pub const FONT_SIZE: f32 = 20.0;
+pub const FONT_SIZE: f32 = 18.0;
 
 const ALPHA_DELIM: char = '-';
-const ALPHA_PADDING: f32 = 10.0;
+const ALPHA_WIDTH_PAD: f32 = 3.0;
+const ALPHA_HEIGHT_PAD: f32 = 16.5;
 
 #[derive(Debug)]
-struct AlphaDisplay {
+struct AlphaToDisplay {
     alpha: char,
     coord: Vector2
 }
@@ -26,30 +27,33 @@ pub struct RLDriver<'pattern_lt> {
     rangoli_pattern: &'pattern_lt Vec<String>,     
     // X- and Y-coordinate of each character in the rangoli pattern.
     rangoli_pos: &'pattern_lt Vec<Vector2>,
-    rangoli_disp: Vec<Vec<AlphaDisplay>>,
+    rangoli_disp: Vec<Vec<AlphaToDisplay>>,
     // X-offset of a character of the given font set.
     alpha_offsets: HashMap<char, f32>,
 }
 
-impl AlphaDisplay {
-    fn new(c: char, line_index: usize, mid_index: usize, char_index: usize, max_alpha_offset: f32) -> AlphaDisplay {
+impl AlphaToDisplay {
+    fn new(c: char, line_index: usize, mid_index: usize, char_index: usize, 
+           alpha_offsets: &HashMap<char, f32>, max_alpha_offset: f32) -> AlphaToDisplay {
         let mut alpha_coord = Vector2::default();
 
         if char_index == mid_index {
             alpha_coord.x = SCREEN_WIDTH as f32 / 2.0;
         } else if char_index > mid_index {
             alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0) + 
-                ((char_index - mid_index) as f32 * max_alpha_offset) + 
-                (ALPHA_PADDING);
+                ((char_index - mid_index) as f32 * (max_alpha_offset + 2.0)) + 
+                ((char_index - mid_index) as f32 * ALPHA_WIDTH_PAD);
+                //alpha_offsets.get(&c).unwrap();
         } else {
             alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0) - 
-                ((mid_index - char_index) as f32 * max_alpha_offset) - 
-                (ALPHA_PADDING);
+                ((mid_index - char_index) as f32 * (max_alpha_offset + 2.0)) - 
+                ((mid_index - char_index) as f32 * ALPHA_WIDTH_PAD);
+                //alpha_offsets.get(&c).unwrap();
 
         }
-        alpha_coord.y = 60.0 + (15.0 * (line_index as f32));
+        alpha_coord.y = 60.0 + (ALPHA_HEIGHT_PAD * (line_index as f32));
 
-        let mut retVal = AlphaDisplay {
+        let mut retVal = AlphaToDisplay {
             alpha: c,
             coord: alpha_coord
         };
@@ -68,11 +72,11 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
         let (max_alpha_offset, alpha_offsets) = RLDriver::calc_alpha_offsets(&rl);
         //println!("\n{:#?}\nmax_alpha_offset: {:.2}", alpha_offsets, max_alpha_offset);
 
-        let mut outer_vec: Vec<Vec<AlphaDisplay>> = Vec::new();
+        let mut outer_vec: Vec<Vec<AlphaToDisplay>> = Vec::new();
         //for r_line in rangoli_pattern {
         for line_index in 0..rangoli_pattern.len() {
             let r_line = &rangoli_pattern[line_index];
-            let mut inner_vec: Vec<AlphaDisplay> = Vec::new();
+            let mut inner_vec: Vec<AlphaToDisplay> = Vec::new();
 
             // The middle character is always 'a', the pivot of the range of characters
             // incrementing to the left and right respectively: 
@@ -90,11 +94,12 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
                 // if r_line.chars().nth(j as usize) != Some(ALPHA_DELIM) {...}
                 
                 if char_index % 2 == 0 {
-                    inner_vec.push(AlphaDisplay::new(
+                    inner_vec.push(AlphaToDisplay::new(
                             r_line.chars().nth(char_index).unwrap(),
                             line_index,
                             mid_index,
                             char_index,
+                            &alpha_offsets,
                             max_alpha_offset,
                             )
                         );
