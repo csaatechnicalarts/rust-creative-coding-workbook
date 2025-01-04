@@ -53,8 +53,8 @@ fn main() {
     // back on its default font, after printing a warning message. See rtext.c LoadBMFont() 
     // TRACELOG message.
  
-    let font = rl.load_font(&thread, "resources/mecha.png").expect("Couldn't load font!");
-    println!("\n{:#?}", font);
+    let font = rl.load_font(&thread, "resources/alpha_beta.png").expect("Couldn't load font!");
+    //println!("\n{:#?}", font);
 
     let mut rangoli_pos = vec![Vector2::default(); rangoli_pattern.len()];
 
