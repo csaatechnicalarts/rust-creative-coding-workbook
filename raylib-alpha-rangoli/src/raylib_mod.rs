@@ -4,7 +4,7 @@ use raylib::prelude::*;
 use std::collections::HashMap;
 
 pub const SCREEN_WIDTH: i32 = 1280;
-pub const SCREEN_HEIGHT: i32 = 800;
+pub const SCREEN_HEIGHT: i32 = 1024;
 pub const DEFAULT_FPS: u32 = 24;
 pub const FONT_SIZE: f32 = 18.0;
 
@@ -12,8 +12,9 @@ const ALPHA_DELIM: char = '-';
 const ALPHA_WIDTH_PAD: f32 = 3.0;
 const ALPHA_HEIGHT_PAD: f32 = 18.5;
 const X_OFFSET_THRESHOLD: f32 = 3.0;
+const TOP_OFFSET: f32 = 40.0;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct AlphaToDisplay {
     alpha: char,
     coord: Vector2,
@@ -59,16 +60,14 @@ impl AlphaToDisplay {
             alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0)
                 + ((char_index - mid_index) as f32 * (max_alpha_offset + 2.0))
                 + ((char_index - mid_index) as f32 * ALPHA_WIDTH_PAD);
-            //alpha_offsets.get(&c).unwrap();
         } else {
             alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0)
                 - ((mid_index - char_index) as f32 * (max_alpha_offset + 2.0))
                 - ((mid_index - char_index) as f32 * ALPHA_WIDTH_PAD);
-            //alpha_offsets.get(&c).unwrap();
         }
 
         alpha_coord.x += x_offset_adj;
-        alpha_coord.y = 60.0 + (ALPHA_HEIGHT_PAD * (line_index as f32));
+        alpha_coord.y = TOP_OFFSET + (ALPHA_HEIGHT_PAD * (line_index as f32));
 
         let mut retVal = AlphaToDisplay {
             alpha: c,
@@ -87,13 +86,8 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
         rangoli_pattern: &'pattern_lt Vec<String>,
     ) -> RLDriver<'pattern_lt> {
         let (max_alpha_offset, alpha_offsets) = RLDriver::calc_alpha_offsets(&rl);
-        println!(
-            "\n{:#?}\nmax_alpha_offset: {:.2}",
-            alpha_offsets, max_alpha_offset
-        );
-
         let mut outer_vec: Vec<Vec<AlphaToDisplay>> = Vec::new();
-        //for r_line in rangoli_pattern {
+
         for line_index in 0..rangoli_pattern.len() {
             let r_line = &rangoli_pattern[line_index];
             let mut inner_vec: Vec<AlphaToDisplay> = Vec::new();
@@ -126,7 +120,18 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
 
             outer_vec.push(inner_vec);
         }
-        //println!("{:#?}", outer_vec);
+
+        // The outer_vec represents the upper half of the rangoli display.
+        // rangoli_mirrored contains both the upper and lower halves.
+
+        let outer_vec_len = outer_vec.len();
+        let mut rangoli_mirrored = outer_vec.clone();
+
+        let mut line_ctr = 1.0;
+        for inner_vec in (&outer_vec[..(outer_vec_len - 1)]).into_iter().rev() {
+            rangoli_mirrored.push(RLDriver::mirror_inner_vec(&line_ctr, &inner_vec));
+            line_ctr += 1.0;
+        }
 
         RLDriver {
             rl,
@@ -134,9 +139,28 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
             font,
             fps: DEFAULT_FPS,
             rangoli_pattern,
-            rangoli_disp: outer_vec,
+            //rangoli_disp: outer_vec,
+            rangoli_disp: rangoli_mirrored,
             alpha_offsets,
         }
+    }
+
+    fn mirror_inner_vec(line_ctr: &f32, inner_vec: &Vec<AlphaToDisplay>) -> Vec<AlphaToDisplay> {
+        let mut retVal = Vec::new();
+
+        for mut a2d_old in inner_vec {
+            let a2d_new = AlphaToDisplay {
+                alpha: a2d_old.alpha,
+                coord: Vector2::new(
+                    a2d_old.coord.x,
+                    (a2d_old.coord.y + (2.0 * line_ctr * ALPHA_HEIGHT_PAD)),
+                ),
+            };
+
+            retVal.push(a2d_new);
+        }
+
+        retVal
     }
 
     fn calc_alpha_offsets(rl: &RaylibHandle) -> (f32, HashMap<char, f32>) {
@@ -175,7 +199,7 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
 
             let mut d = self.rl.begin_drawing(&self.thread);
 
-            d.clear_background(Color::GAINSBORO);
+            d.clear_background(Color::SADDLEBROWN);
 
             for r_line in &self.rangoli_disp {
                 for r_char in r_line {
@@ -187,7 +211,7 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
                         r_char.coord,
                         FONT_SIZE,
                         1.0,
-                        Color::GRAY,
+                        Color::DARKKHAKI,
                     );
                 }
             }

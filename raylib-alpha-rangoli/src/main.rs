@@ -30,10 +30,7 @@ fn main() {
         process::exit(1);
     }
 
-    //print_rangoli(cli_param.number);
-
     let (rangoli_pattern, max_size) = generate_rangoli_pattern(cli_param.number);
-    //println!("{:#?}", rangoli_pattern);
 
     // ********************
     // Raylib set up block.
@@ -52,9 +49,8 @@ fn main() {
     // TRACELOG message.
 
     let font = rl
-        .load_font(&thread, "resources/use_default_font.png")
+        .load_font(&thread, "resources/bogus_font.png")
         .expect("Couldn't load font!");
-    //println!("\n{:#?}", font);
 
     let mut rld = RLDriver::build(&mut rl, &thread, &font, &rangoli_pattern);
     rld.run();
