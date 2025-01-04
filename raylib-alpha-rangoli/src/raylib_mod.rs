@@ -11,6 +11,7 @@ pub const FONT_SIZE: f32 = 18.0;
 const ALPHA_DELIM: char = '-';
 const ALPHA_WIDTH_PAD: f32 = 3.0;
 const ALPHA_HEIGHT_PAD: f32 = 18.5;
+const X_OFFSET_THRESHOLD: f32 = 3.0;
 
 #[derive(Debug)]
 struct AlphaToDisplay {
@@ -41,8 +42,19 @@ impl AlphaToDisplay {
     ) -> AlphaToDisplay {
         let mut alpha_coord = Vector2::default();
 
+        // For narrow letters such as 'i', 'j' or 't', fudge their x-coordinate
+        // to display the glyph closer to the center of their display cell.
+        // This is purely for aesthetic effect and may not work well for all fonts.
+
+        let x_offset = alpha_offsets.get(&c).unwrap();
+        let mut x_offset_adj = 0.0;
+
+        if *x_offset > X_OFFSET_THRESHOLD {
+            x_offset_adj = (max_alpha_offset / 2.0) - x_offset;
+        }
+
         if char_index == mid_index {
-            alpha_coord.x = SCREEN_WIDTH as f32 / 2.0;
+            alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0);
         } else if char_index > mid_index {
             alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0)
                 + ((char_index - mid_index) as f32 * (max_alpha_offset + 2.0))
@@ -54,6 +66,8 @@ impl AlphaToDisplay {
                 - ((mid_index - char_index) as f32 * ALPHA_WIDTH_PAD);
             //alpha_offsets.get(&c).unwrap();
         }
+
+        alpha_coord.x += x_offset_adj;
         alpha_coord.y = 60.0 + (ALPHA_HEIGHT_PAD * (line_index as f32));
 
         let mut retVal = AlphaToDisplay {
@@ -73,7 +87,10 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
         rangoli_pattern: &'pattern_lt Vec<String>,
     ) -> RLDriver<'pattern_lt> {
         let (max_alpha_offset, alpha_offsets) = RLDriver::calc_alpha_offsets(&rl);
-        //println!("\n{:#?}\nmax_alpha_offset: {:.2}", alpha_offsets, max_alpha_offset);
+        println!(
+            "\n{:#?}\nmax_alpha_offset: {:.2}",
+            alpha_offsets, max_alpha_offset
+        );
 
         let mut outer_vec: Vec<Vec<AlphaToDisplay>> = Vec::new();
         //for r_line in rangoli_pattern {
@@ -109,7 +126,7 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
 
             outer_vec.push(inner_vec);
         }
-        println!("{:#?}", outer_vec);
+        //println!("{:#?}", outer_vec);
 
         RLDriver {
             rl,

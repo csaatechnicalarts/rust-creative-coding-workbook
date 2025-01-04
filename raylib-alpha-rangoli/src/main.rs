@@ -41,7 +41,7 @@ fn main() {
 
     let (mut rl, thread) = raylib::init()
         .size(SCREEN_WIDTH, SCREEN_HEIGHT)
-        .title("Rust Alphabet Rangoli (ver. 0.9)")
+        .title("Rust Alphabet Rangoli (ver. 0.92)")
         .build();
 
     rl.set_target_fps(DEFAULT_FPS);
@@ -52,7 +52,7 @@ fn main() {
     // TRACELOG message.
 
     let font = rl
-        .load_font(&thread, "resources/bad_alpha_beta.png")
+        .load_font(&thread, "resources/use_default_font.png")
         .expect("Couldn't load font!");
     //println!("\n{:#?}", font);
 
