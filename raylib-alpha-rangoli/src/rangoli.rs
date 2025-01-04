@@ -1,5 +1,7 @@
 #![allow(warnings)]
 
+use std::process;
+
 pub static LOWER_BOUND: i32 = 1;
 pub static UPPER_BOUND: i32 = 26;
 
@@ -17,12 +19,16 @@ pub fn generate_rangoli_pattern(n: i32) -> (Vec<String>, i32) {
         rangoli_lines.push(print_line(n - 1, i));
     }
 
-    let max_width = rangoli_lines.last().unwrap().len();
+    let last_rline = rangoli_lines.last();
+    let mut max_width = 0;
 
-    /* for line in &rangoli_lines {
-        println!("{:-^width$}", line, width = max_width);
+    if let Some(r_string) = last_rline {
+        max_width = r_string.len();
+    } else {
+        println!("Error: rangoli_lines.last() yielded None!");
+        process::exit(1);
     }
- */
+
     let rangoli_output = &rangoli_lines[..(rangoli_lines.len() - 1)];
 
     (rangoli_lines, max_width as i32)

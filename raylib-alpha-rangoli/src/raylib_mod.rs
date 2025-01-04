@@ -2,13 +2,14 @@
 
 use raylib::prelude::*;
 use std::collections::HashMap;
+use std::process;
 
 pub const SCREEN_WIDTH: i32 = 1280;
 pub const SCREEN_HEIGHT: i32 = 1024;
 pub const DEFAULT_FPS: u32 = 24;
 pub const FONT_SIZE: f32 = 18.0;
 
-const ALPHA_DELIM: char = '-';
+//const ALPHA_DELIM: char = '-';
 const ALPHA_WIDTH_PAD: f32 = 3.0;
 const ALPHA_HEIGHT_PAD: f32 = 18.5;
 const X_OFFSET_THRESHOLD: f32 = 3.0;
@@ -47,26 +48,28 @@ impl AlphaToDisplay {
         // to display the glyph closer to the center of their display cell.
         // This is purely for aesthetic effect and may not work well for all fonts.
 
-        let x_offset = alpha_offsets.get(&c).unwrap();
         let mut x_offset_adj = 0.0;
+        let x_offset = alpha_offsets.get(&c);
 
-        if *x_offset > X_OFFSET_THRESHOLD {
-            x_offset_adj = (max_alpha_offset / 2.0) - x_offset;
-        }
+        if let Some(val) = x_offset {
+            if char_index == mid_index {
+                alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0);
+            } else if char_index > mid_index {
+                alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0)
+                    + ((char_index - mid_index) as f32 * (max_alpha_offset + 2.0))
+                    + ((char_index - mid_index) as f32 * ALPHA_WIDTH_PAD);
+            } else {
+                alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0)
+                    - ((mid_index - char_index) as f32 * (max_alpha_offset + 2.0))
+                    - ((mid_index - char_index) as f32 * ALPHA_WIDTH_PAD);
+            }
 
-        if char_index == mid_index {
-            alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0);
-        } else if char_index > mid_index {
-            alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0)
-                + ((char_index - mid_index) as f32 * (max_alpha_offset + 2.0))
-                + ((char_index - mid_index) as f32 * ALPHA_WIDTH_PAD);
+            alpha_coord.x += x_offset_adj;
         } else {
-            alpha_coord.x = (SCREEN_WIDTH as f32 / 2.0)
-                - ((mid_index - char_index) as f32 * (max_alpha_offset + 2.0))
-                - ((mid_index - char_index) as f32 * ALPHA_WIDTH_PAD);
+            println!("Error: alpha_offset.get(&c) returned None!");
+            process::exit(1);
         }
 
-        alpha_coord.x += x_offset_adj;
         alpha_coord.y = TOP_OFFSET + (ALPHA_HEIGHT_PAD * (line_index as f32));
 
         let mut retVal = AlphaToDisplay {
@@ -107,14 +110,21 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
                 // if r_line.chars().nth(j as usize) != Some(ALPHA_DELIM) {...}
 
                 if char_index % 2 == 0 {
-                    inner_vec.push(AlphaToDisplay::new(
-                        r_line.chars().nth(char_index).unwrap(),
-                        line_index,
-                        mid_index,
-                        char_index,
-                        &alpha_offsets,
-                        max_alpha_offset,
-                    ));
+                    let alpha_char = r_line.chars().nth(char_index);
+
+                    if let Some(c) = alpha_char {
+                        inner_vec.push(AlphaToDisplay::new(
+                            c,
+                            line_index,
+                            mid_index,
+                            char_index,
+                            &alpha_offsets,
+                            max_alpha_offset,
+                        ));
+                    } else {
+                        println!("Error: r_line.chars().nth(char_index) yielded None!");
+                        process::exit(1);
+                    }
                 }
             }
 
@@ -148,7 +158,7 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
     fn mirror_inner_vec(line_ctr: &f32, inner_vec: &Vec<AlphaToDisplay>) -> Vec<AlphaToDisplay> {
         let mut retVal = Vec::new();
 
-        for mut a2d_old in inner_vec {
+        for a2d_old in inner_vec {
             let a2d_new = AlphaToDisplay {
                 alpha: a2d_old.alpha,
                 coord: Vector2::new(
