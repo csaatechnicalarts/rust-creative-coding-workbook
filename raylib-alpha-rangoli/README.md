@@ -17,4 +17,4 @@ The second Cargo command uses the first five letters of the alphabet, `a-e`, to 
 
 ## Raylib Version
 
-TBD.
+![](images/raylib-alpha-rangoli_01-800px.jpg)
