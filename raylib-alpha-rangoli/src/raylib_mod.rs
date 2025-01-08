@@ -47,7 +47,7 @@ impl AlphaToDisplay {
 
         // For narrow letters such as 'i', 'j' or 't', fudge their x-coordinate
         // to display the glyph closer to the center of their display cell,
-        // at the least by X_OFFSET_THRESHOLD. This is purely for aesthetic effect 
+        // at the least by X_OFFSET_THRESHOLD. This is purely for aesthetic effect
         // and may not work well for all fonts.
 
         let x_offset = alpha_offsets.get(&c);
@@ -69,8 +69,7 @@ impl AlphaToDisplay {
                 alpha_coord.x += X_OFFSET_THRESHOLD;
             }
         } else {
-            println!("Error: alpha_offset.get(&c) returned None!");
-            process::exit(1);
+            panic!("Error: alpha_offset.get(&c) returned None!");
         }
 
         alpha_coord.y = TOP_OFFSET + (ALPHA_HEIGHT_PAD * (line_index as f32));
@@ -123,8 +122,7 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
                             max_alpha_offset,
                         ));
                     } else {
-                        println!("Error: r_line.chars().nth(char_index) yielded None!");
-                        process::exit(1);
+                        panic!("Error: r_line.chars().nth(char_index) yielded None!");
                     }
                 }
             }
@@ -186,8 +184,9 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
 
         let mut tmp = [0u8; 4];
         for i in 0..26 {
-            let mut x_offset = (rl.measure_text(ascii_lower[i].encode_utf8(&mut tmp), 
-                    FONT_SIZE as i32) / 2) as f32;
+            let mut x_offset = (rl
+                .measure_text(ascii_lower[i].encode_utf8(&mut tmp), FONT_SIZE as i32)
+                / 2) as f32;
             ret_val.insert(ascii_lower[i], x_offset);
             if x_offset > max_alpha_offset {
                 max_alpha_offset = x_offset;

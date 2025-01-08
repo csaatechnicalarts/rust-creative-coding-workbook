@@ -25,8 +25,7 @@ pub fn generate_rangoli_pattern(n: i32) -> (Vec<String>, i32) {
     if let Some(r_string) = last_rline {
         max_width = r_string.len();
     } else {
-        println!("Error: rangoli_lines.last() yielded None!");
-        process::exit(1);
+        panic!("Error: rangoli_lines.last() yielded None!");
     }
 
     let rangoli_output = &rangoli_lines[..(rangoli_lines.len() - 1)];
