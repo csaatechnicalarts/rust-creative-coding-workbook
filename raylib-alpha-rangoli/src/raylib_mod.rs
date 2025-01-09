@@ -99,8 +99,10 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
             // incrementing to the left and right respectively:
             // i.e. ["a", "b-a-b", "c-b-a-b-c"] for an n=3 rangoli pattern.
 
-            let mid_index: usize = r_line.len() / 2;
-            for char_index in 0..r_line.len() {
+            //let mid_index: usize = r_line.len() / 2;
+            //for char_index in 0..r_line.len() {
+            let mid_index: usize = r_line.chars().count() / 2;
+            for char_index in 0..r_line.chars().count() {
                 // A line in a rangoli pattern always has an odd number of alphabets,
                 // each one indexed by an even number. Odd indices always refer to
                 // the delimeter character, '-' in "c-b-a-b-c" for example.

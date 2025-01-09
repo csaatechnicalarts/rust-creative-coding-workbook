@@ -23,7 +23,7 @@ pub fn generate_rangoli_pattern(n: i32) -> (Vec<String>, i32) {
     let mut max_width = 0;
 
     if let Some(r_string) = last_rline {
-        max_width = r_string.len();
+        max_width = r_string.chars().count();
     } else {
         panic!("Error: rangoli_lines.last() yielded None!");
     }
