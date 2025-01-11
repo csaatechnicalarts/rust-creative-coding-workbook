@@ -1,6 +1,6 @@
 #![allow(warnings)]
 
-use std::{fmt, path::Display, process};
+use std::{fmt, process};
 
 pub static LOWER_BOUND: i32 = 1;
 pub static UPPER_BOUND: i32 = 26;
