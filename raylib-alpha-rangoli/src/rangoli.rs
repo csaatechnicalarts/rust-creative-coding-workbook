@@ -28,8 +28,6 @@ pub fn generate_rangoli_pattern(n: i32) -> (Vec<String>, i32) {
         panic!("Error: rangoli_lines.last() yielded None!");
     }
 
-    let rangoli_output = &rangoli_lines[..(rangoli_lines.len() - 1)];
-
     (rangoli_lines, max_width as i32)
 }
 
