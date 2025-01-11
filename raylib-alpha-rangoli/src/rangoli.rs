@@ -5,7 +5,6 @@ use std::{fmt, path::Display, process};
 pub static LOWER_BOUND: i32 = 1;
 pub static UPPER_BOUND: i32 = 26;
 
-//#[derive(Display)]
 pub struct RangoliTextPattern {
     rangoli_lines: Vec<String>,
     max_width: i32,
