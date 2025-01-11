@@ -4,6 +4,8 @@ use raylib::prelude::*;
 use std::collections::HashMap;
 use std::process;
 
+use crate::rangoli::RangoliTextPattern;
+
 pub const SCREEN_WIDTH: i32 = 1280;
 pub const SCREEN_HEIGHT: i32 = 1024;
 pub const DEFAULT_FPS: u32 = 24;
@@ -27,7 +29,7 @@ pub struct RLDriver<'pattern_lt> {
     fps: u32,
     font: &'pattern_lt Font,
     // Generated text pattern owned by the rangoli module.
-    rangoli_pattern: &'pattern_lt Vec<String>,
+    rangoli_text: &'pattern_lt RangoliTextPattern,
     // Glyph representation of the rangoli pattern to display.
     rangoli_disp: Vec<Vec<AlphaToDisplay>>,
     // X-offset of a character of the given font set.
@@ -42,7 +44,7 @@ impl AlphaToDisplay {
         char_index: usize,
         alpha_offsets: &HashMap<char, f32>,
         max_alpha_offset: f32,
-    ) -> AlphaToDisplay {
+    ) -> Self {
         let mut alpha_coord = Vector2::default();
 
         // For narrow letters such as 'i', 'j' or 't', fudge their x-coordinate
@@ -74,7 +76,7 @@ impl AlphaToDisplay {
 
         alpha_coord.y = TOP_OFFSET + (ALPHA_HEIGHT_PAD * (line_index as f32));
 
-        AlphaToDisplay {
+        Self {
             alpha: c,
             coord: alpha_coord,
         }
@@ -86,10 +88,11 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
         rl: &'pattern_lt mut RaylibHandle,
         thread: &'pattern_lt RaylibThread,
         font: &'pattern_lt Font,
-        rangoli_pattern: &'pattern_lt Vec<String>,
+        rangoli_text: &'pattern_lt RangoliTextPattern,
     ) -> RLDriver<'pattern_lt> {
         let (max_alpha_offset, alpha_offsets) = RLDriver::calc_alpha_offsets(&rl);
         let mut outer_vec: Vec<Vec<AlphaToDisplay>> = Vec::new();
+        let (rangoli_pattern, _) = rangoli_text.get_rangoli_text();
 
         for line_index in 0..rangoli_pattern.len() {
             let r_line = &rangoli_pattern[line_index];
@@ -99,8 +102,6 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
             // incrementing to the left and right respectively:
             // i.e. ["a", "b-a-b", "c-b-a-b-c"] for an n=3 rangoli pattern.
 
-            //let mid_index: usize = r_line.len() / 2;
-            //for char_index in 0..r_line.len() {
             let mid_index: usize = r_line.chars().count() / 2;
             for char_index in 0..r_line.chars().count() {
                 // A line in a rangoli pattern always has an odd number of alphabets,
@@ -149,7 +150,7 @@ impl<'pattern_lt> RLDriver<'pattern_lt> {
             thread,
             font,
             fps: DEFAULT_FPS,
-            rangoli_pattern,
+            rangoli_text,
             rangoli_disp: rangoli_mirrored,
             alpha_offsets,
         }

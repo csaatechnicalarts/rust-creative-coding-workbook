@@ -53,6 +53,6 @@ fn main() {
         .load_font(&thread, "resources/bogus_font.png")
         .expect("Couldn't load font!");
 
-    let mut rld = RLDriver::build(&mut rl, &thread, &font, rangoli_pattern);
+    let mut rld = RLDriver::build(&mut rl, &thread, &font, &rangoli_text_pattern);
     rld.run();
 }
