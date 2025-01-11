@@ -12,7 +12,7 @@ struct CliParam {
 }
 
 fn main() {
-    use crate::rangoli::{generate_rangoli_pattern, print_rangoli, LOWER_BOUND, UPPER_BOUND};
+    use crate::rangoli::{RangoliTextPattern, LOWER_BOUND, UPPER_BOUND};
     use crate::raylib_mod::{RLDriver, DEFAULT_FPS, SCREEN_HEIGHT, SCREEN_WIDTH};
     use raylib::prelude::*;
     use std::process;
@@ -30,7 +30,8 @@ fn main() {
         process::exit(1);
     }
 
-    let (rangoli_pattern, max_size) = generate_rangoli_pattern(cli_param.number);
+    let rangoli_text_pattern = RangoliTextPattern::new(cli_param.number);
+    let (rangoli_pattern, _) = rangoli_text_pattern.get_rangoli_text();
 
     // ********************
     // Raylib set up block.
@@ -52,6 +53,6 @@ fn main() {
         .load_font(&thread, "resources/bogus_font.png")
         .expect("Couldn't load font!");
 
-    let mut rld = RLDriver::build(&mut rl, &thread, &font, &rangoli_pattern);
+    let mut rld = RLDriver::build(&mut rl, &thread, &font, rangoli_pattern);
     rld.run();
 }
