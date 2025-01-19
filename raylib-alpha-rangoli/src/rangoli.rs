@@ -84,8 +84,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn RangoliTextPattern_iter() {
+    fn test_vec_string() {
         let rtp_01 = RangoliTextPattern::new(1);
         let rtp_03 = RangoliTextPattern::new(3);
+
+        let (rtp_01_vec, _) = rtp_01.get_rangoli_text();
+        assert_eq!(*rtp_01_vec.get(0).unwrap(), String::from("a"));
+        assert_ne!(*rtp_01_vec.get(0).unwrap(), String::from("z"));
+
+        let (rtp_03_vec, _) = rtp_03.get_rangoli_text();
+        assert_eq!("c", rtp_03_vec.get(0).unwrap());
+        assert_eq!("c-b-c", rtp_03_vec.get(1).unwrap());
+        assert_eq!("c-b-a-b-c", rtp_03_vec.get(2).unwrap());
+        assert_eq!(None, rtp_03_vec.get(3));
+    }
+
+    #[test]
+    fn test_iter_consume() {
+        let mut rtp_01 = RangoliTextPattern::new(1);
+        assert_eq!("a", rtp_01.next().unwrap());
+        assert_eq!(None, rtp_01.next());
+
+        let mut rtp_03 = RangoliTextPattern::new(3);
+        assert_eq!("c-b-a-b-c", rtp_03.next().unwrap());
+        assert_eq!("c-b-c", rtp_03.next().unwrap());
+        assert_eq!("c", rtp_03.next().unwrap());
+        assert_eq!(None, rtp_03.next());
     }
 }
