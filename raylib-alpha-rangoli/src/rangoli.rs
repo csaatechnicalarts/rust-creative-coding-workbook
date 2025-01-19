@@ -62,10 +62,7 @@ impl Iterator for RangoliTextPattern {
     type Item = String;
 
     fn next(&mut self) -> Option<String> {
-        match self.rangoli_lines.pop() {
-            Some(String) => Some(String),
-            None => None,
-        }
+        self.rangoli_lines.pop()
     }
 }
 
@@ -113,6 +110,18 @@ mod tests {
         assert_eq!(rtp_03_data[2], rtp_03.next().unwrap());
         assert_eq!(rtp_03_data[1], rtp_03.next().unwrap());
         assert_eq!(rtp_03_data[0], rtp_03.next().unwrap());
+        assert_eq!(None, rtp_03.next());
+    }
+
+    #[test]
+    fn test_iter_consume_loop() {
+        let mut rtp_03 = RangoliTextPattern::new(3);
+        let mut idx: i8 = 2;
+        while idx >= 0 {
+            assert_eq!(rtp_03_data[idx as usize], rtp_03.next().unwrap());
+
+            idx = idx - 1;
+        }
         assert_eq!(None, rtp_03.next());
     }
 }
