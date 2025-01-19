@@ -58,6 +58,17 @@ impl RangoliTextPattern {
     }
 }
 
+impl Iterator for RangoliTextPattern {
+    type Item = String;
+
+    fn next(&mut self) -> Option<String> {
+        match self.rangoli_lines.pop() {
+            Some(String) => Some(String),
+            None => None,
+        }
+    }
+}
+
 impl fmt::Display for RangoliTextPattern {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
@@ -65,5 +76,16 @@ impl fmt::Display for RangoliTextPattern {
             "\nRangoli Text Pattern:\n{:#?}\nMax Width: {}\n",
             self.rangoli_lines, self.max_width
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn RangoliTextPattern_iter() {
+        let rtp_01 = RangoliTextPattern::new(1);
+        let rtp_03 = RangoliTextPattern::new(3);
     }
 }
