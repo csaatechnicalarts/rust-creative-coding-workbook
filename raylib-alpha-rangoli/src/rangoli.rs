@@ -124,4 +124,12 @@ mod tests {
         }
         assert_eq!(None, rtp_03.next());
     }
+
+    #[test]
+    fn test_iter_print_loop() {
+        let mut rtp_03 = RangoliTextPattern::new(3);
+        for line in rtp_03 {
+            println!("{line}");
+        }
+    }
 }
