@@ -56,6 +56,10 @@ impl RangoliTextPattern {
         }
         r_line.join("-")
     }
+
+    pub fn iter(&self) -> std::slice::Iter<'_, std::string::String> {
+        self.rangoli_lines.iter()
+    }
 }
 
 impl Iterator for RangoliTextPattern {
@@ -128,8 +132,9 @@ mod tests {
     #[test]
     fn test_iter_print_loop() {
         let mut rtp_03 = RangoliTextPattern::new(3);
-        for line in rtp_03 {
-            println!("{line}");
+        println!();
+        for (idx, line) in rtp_03.iter().enumerate() {
+            println!("{idx}: {line}");
         }
     }
 }
