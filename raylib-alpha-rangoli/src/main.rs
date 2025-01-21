@@ -30,8 +30,7 @@ fn main() {
         process::exit(1);
     }
 
-    let rangoli_text_pattern = RangoliTextPattern::new(cli_param.number);
-    let (rangoli_pattern, _) = rangoli_text_pattern.get_rangoli_text();
+    let mut rangoli_text_pattern = RangoliTextPattern::new(cli_param.number);
 
     // ********************
     // Raylib set up block.
@@ -53,6 +52,6 @@ fn main() {
         .load_font(&thread, "resources/bogus_font.png")
         .expect("Couldn't load font!");
 
-    let mut rld = RLDriver::build(&mut rl, &thread, &font, &rangoli_text_pattern);
+    let mut rld = RLDriver::build(&mut rl, &thread, &font, &mut rangoli_text_pattern);
     rld.run();
 }

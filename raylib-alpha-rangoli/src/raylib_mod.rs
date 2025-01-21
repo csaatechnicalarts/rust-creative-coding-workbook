@@ -23,13 +23,13 @@ struct AlphaToDisplay {
     coord: Vector2,
 }
 
-pub struct RLDriver<'pattern_lt> {
-    rl: &'pattern_lt mut RaylibHandle,
-    thread: &'pattern_lt RaylibThread,
+pub struct RLDriver<'p> {
+    rl: &'p mut RaylibHandle,
+    thread: &'p RaylibThread,
     fps: u32,
-    font: &'pattern_lt Font,
+    font: &'p Font,
     // Generated text pattern owned by the rangoli module.
-    rangoli_text: &'pattern_lt RangoliTextPattern,
+    rangoli_text: &'p RangoliTextPattern,
     // Glyph representation of the rangoli pattern to display.
     rangoli_disp: Vec<Vec<AlphaToDisplay>>,
     // X-offset of a character of the given font set.
@@ -83,19 +83,18 @@ impl AlphaToDisplay {
     }
 }
 
-impl<'pattern_lt> RLDriver<'pattern_lt> {
+impl<'p> RLDriver<'p> {
     pub fn build(
-        rl: &'pattern_lt mut RaylibHandle,
-        thread: &'pattern_lt RaylibThread,
-        font: &'pattern_lt Font,
-        rangoli_text: &'pattern_lt RangoliTextPattern,
-    ) -> RLDriver<'pattern_lt> {
+        rl: &'p mut RaylibHandle,
+        thread: &'p RaylibThread,
+        font: &'p Font,
+        rangoli_text: &'p mut RangoliTextPattern,
+    ) -> RLDriver<'p> {
         let (max_alpha_offset, alpha_offsets) = RLDriver::calc_alpha_offsets(&rl);
         let mut outer_vec: Vec<Vec<AlphaToDisplay>> = Vec::new();
         let (rangoli_pattern, _) = rangoli_text.get_rangoli_text();
 
-        for line_index in 0..rangoli_pattern.len() {
-            let r_line = &rangoli_pattern[line_index];
+        for (line_index, r_line) in rangoli_pattern.iter().enumerate() {
             let mut inner_vec: Vec<AlphaToDisplay> = Vec::new();
 
             // The middle character is always 'a', the pivot of the range of characters
