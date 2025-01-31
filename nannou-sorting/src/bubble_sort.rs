@@ -32,6 +32,24 @@ where T: PartialOrd + Debug
             Err(BubbleSortError::EmptyVecToSort)
         }
     }
+
+    pub fn algo_next(&mut self) -> Option<&'a Vec<T>> {
+        if self.outer_idx < self.outer_max {
+            Some(self.v)
+        } else {
+            // The vector is sorted.
+            None
+        }
+    }
+
+    pub fn algo_prev(&mut self) -> Option<&'a Vec<T>> {
+        if self.outer_idx != 0 {
+            Some(self.v)
+        } else {
+            // The vector has been un-sorted back to its original state.
+            None
+        }
+    }
 }
 
 impl<'a, T> fmt::Display for BubbleSort<'a, T>
