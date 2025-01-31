@@ -1,6 +1,12 @@
-use std::fmt::Debug;
 use std::fmt;
+use std::fmt::Debug;
 
+#[derive(Debug, PartialEq)]
+enum BubbleSortError {
+    EmptyVecToSort,
+}
+
+#[derive(Debug, PartialEq)]
 struct BubbleSort<'a, T: PartialOrd + Debug> {
     v: &'a mut Vec<T>,
     outer_max: u32,
@@ -11,16 +17,20 @@ struct BubbleSort<'a, T: PartialOrd + Debug> {
 impl<'a, T> BubbleSort<'a, T>
 where T: PartialOrd + Debug 
 {
-    fn new(v: &'a mut Vec<T>) -> Self {
-        let v_len = v.len() as u32;
-        let ret_val = BubbleSort {
-            v,
-            outer_max: v_len,
-            outer_idx: 0,
-            inner_idx: 0,
-        };
+    fn new(v: &'a mut Vec<T>) -> Result<Self, BubbleSortError> {
+        if v.len() > 0 {
+            let v_len = v.len() as u32;
+            let ret_val = BubbleSort {
+                v,
+                outer_max: v_len,
+                outer_idx: 0,
+                inner_idx: 0,
+            };
 
-        ret_val
+            Ok(ret_val)
+        } else {
+            Err(BubbleSortError::EmptyVecToSort)
+        }
     }
 }
 
@@ -75,22 +85,23 @@ mod tests {
 
     #[test]
     fn test_bubble_sort_constructor() {
-        /*let mut v0: Vec<u32> = Vec::new();
+        let mut v0: Vec<u32> = Vec::new();
         let bs0 = BubbleSort::new(&mut v0);
-
-        assert_eq!(bs0.v.get(0), None);
-        assert_eq!(bs0.outer_max, 0);*/
+        assert_eq!(bs0, Err(BubbleSortError::EmptyVecToSort));
 
         let mut v1 = vec![4, 2, 1];
         let bs1 = BubbleSort::new(&mut v1);
+        assert_ne!(bs1, Err(BubbleSortError::EmptyVecToSort));
 
-        assert_eq!(bs1.v.get(0), Some(&4));
-        assert_eq!(bs1.v.get(1), Some(&2));
-        assert_eq!(bs1.v.get(2), Some(&1));
-        assert_eq!(bs1.v.get(3), None);
+        let bs = bs1.unwrap();
+        assert_ne!(bs.v.get(0), Some(&u32::MAX));
+        assert_eq!(bs.v.get(0), Some(&4));
+        assert_eq!(bs.v.get(1), Some(&2));
+        assert_eq!(bs.v.get(2), Some(&1));
+        assert_eq!(bs.v.get(3), None);
 
-        assert_eq!(bs1.outer_max, 3);
-        assert_eq!(bs1.outer_idx, 0);
-        assert_eq!(bs1.inner_idx, 0);
+        assert_eq!(bs.outer_max, 3);
+        assert_eq!(bs.outer_idx, 0);
+        assert_eq!(bs.inner_idx, 0);
     }
 }
