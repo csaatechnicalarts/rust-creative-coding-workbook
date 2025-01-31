@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = ["raylib-intro-course", "raylib-alpha-rangoli"]
+members = ["raylib-intro-course", "raylib-alpha-rangoli", "nannou-sorting"]
 
 [dependencies]
 
