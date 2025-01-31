@@ -8,7 +8,7 @@ enum BubbleSortError {
 
 #[derive(Debug, PartialEq)]
 struct BubbleSort<'a, T: PartialOrd + Debug> {
-    v: &'a mut Vec<T>,
+    v: &'a Vec<T>,
     outer_max: u32,
     outer_idx: u32,
     inner_idx: u32,
@@ -17,7 +17,7 @@ struct BubbleSort<'a, T: PartialOrd + Debug> {
 impl<'a, T> BubbleSort<'a, T>
 where T: PartialOrd + Debug 
 {
-    fn new(v: &'a mut Vec<T>) -> Result<Self, BubbleSortError> {
+    fn new(v: &'a Vec<T>) -> Result<Self, BubbleSortError> {
         if v.len() > 0 {
             let v_len = v.len() as u32;
             let ret_val = BubbleSort {
@@ -85,12 +85,12 @@ mod tests {
 
     #[test]
     fn test_bubble_sort_constructor() {
-        let mut v0: Vec<u32> = Vec::new();
-        let bs0 = BubbleSort::new(&mut v0);
+        let v0: Vec<u32> = Vec::new();
+        let bs0 = BubbleSort::new(&v0);
         assert_eq!(bs0, Err(BubbleSortError::EmptyVecToSort));
 
-        let mut v1 = vec![4, 2, 1];
-        let bs1 = BubbleSort::new(&mut v1);
+        let v1 = vec![4, 2, 1];
+        let bs1 = BubbleSort::new(&v1);
         assert_ne!(bs1, Err(BubbleSortError::EmptyVecToSort));
 
         let bs = bs1.unwrap();
