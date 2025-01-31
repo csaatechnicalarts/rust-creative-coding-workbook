@@ -2,12 +2,12 @@ use std::fmt;
 use std::fmt::Debug;
 
 #[derive(Debug, PartialEq)]
-enum BubbleSortError {
+pub enum BubbleSortError {
     EmptyVecToSort,
 }
 
 #[derive(Debug, PartialEq)]
-struct BubbleSort<'a, T: PartialOrd + Debug> {
+pub struct BubbleSort<'a, T: PartialOrd + Debug> {
     v: &'a Vec<T>,
     outer_max: u32,
     outer_idx: u32,
@@ -17,17 +17,17 @@ struct BubbleSort<'a, T: PartialOrd + Debug> {
 impl<'a, T> BubbleSort<'a, T>
 where T: PartialOrd + Debug 
 {
-    fn new(v: &'a Vec<T>) -> Result<Self, BubbleSortError> {
+    pub fn new(v: &'a Vec<T>) -> Result<Self, BubbleSortError> {
         if v.len() > 0 {
             let v_len = v.len() as u32;
-            let ret_val = BubbleSort {
+            let bubble_sort = BubbleSort {
                 v,
                 outer_max: v_len,
                 outer_idx: 0,
                 inner_idx: 0,
             };
 
-            Ok(ret_val)
+            Ok(bubble_sort)
         } else {
             Err(BubbleSortError::EmptyVecToSort)
         }
@@ -94,6 +94,7 @@ mod tests {
         assert_ne!(bs1, Err(BubbleSortError::EmptyVecToSort));
 
         let bs = bs1.unwrap();
+        assert_eq!(bs.v, &vec![4, 2, 1]);
         assert_ne!(bs.v.get(0), Some(&u32::MAX));
         assert_eq!(bs.v.get(0), Some(&4));
         assert_eq!(bs.v.get(1), Some(&2));
