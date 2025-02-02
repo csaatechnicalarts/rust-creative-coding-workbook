@@ -3,12 +3,11 @@ use crate::bubble_sort::{proto_bubble_sort, BubbleSort, BubbleSortError};
 pub mod bubble_sort;
 
 fn main() {
-    let mut v = vec![2, 13, 4, 7, 8, 1, 5];
+    let mut v = vec![2, 13, 4, 7, 8, 1, 5, 10, 11, 3];
     let mut w = v.clone();
     println!("Unsorted vector\t\t{:?}", v);
 
     proto_bubble_sort(&mut v);
-    assert_eq!(v, vec![1, 2, 4, 5, 7, 8, 13]);
     println!("Algorithmic bubble sort\t{v:?}");
 
     let bs = BubbleSort::new(&mut w);

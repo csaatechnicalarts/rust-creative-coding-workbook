@@ -46,9 +46,11 @@ where
     pub fn algo_next(&mut self) -> bool {
         if !self.sorted && (self.outer_idx < self.v_len) {
             if self.inner_idx < (self.v_len - 1 - self.outer_idx) {
-                let idx = self.inner_idx;
+                //let idx = self.inner_idx;
                 if self.v[self.inner_idx as usize] > self.v[self.inner_idx as usize + 1] {
-                    self.v.swap(idx as usize, idx as usize + 1);
+                    //self.v.swap(idx as usize, idx as usize + 1);
+                    self.v
+                        .swap(self.inner_idx as usize, self.inner_idx as usize + 1);
                 }
                 self.inner_idx = self.inner_idx + 1;
             } else {
