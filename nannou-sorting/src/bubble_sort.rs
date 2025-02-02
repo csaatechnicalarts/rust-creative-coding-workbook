@@ -1,4 +1,3 @@
-use std::fmt;
 use std::fmt::Debug;
 
 #[derive(Debug, PartialEq)]
@@ -15,7 +14,7 @@ where
     v_len: u32,
     outer_idx: u32,
     inner_idx: u32,
-    sorted: bool,
+    sort_complete: bool,
 }
 
 impl<'a, T> BubbleSort<'a, T>
@@ -30,7 +29,7 @@ where
                 v_len,
                 outer_idx: 0,
                 inner_idx: 0,
-                sorted: false,
+                sort_complete: false,
             };
 
             Ok(bubble_sort)
@@ -43,12 +42,14 @@ where
         self.v
     }
 
+    pub fn is_sorted(&self) -> bool {
+        return self.sort_complete;
+    }
+
     pub fn algo_next(&mut self) -> bool {
-        if !self.sorted && (self.outer_idx < self.v_len) {
+        if !self.sort_complete && (self.outer_idx < self.v_len) {
             if self.inner_idx < (self.v_len - 1 - self.outer_idx) {
-                //let idx = self.inner_idx;
                 if self.v[self.inner_idx as usize] > self.v[self.inner_idx as usize + 1] {
-                    //self.v.swap(idx as usize, idx as usize + 1);
                     self.v
                         .swap(self.inner_idx as usize, self.inner_idx as usize + 1);
                 }
@@ -58,25 +59,12 @@ where
                 self.outer_idx = self.outer_idx + 1;
             }
 
-            self.sorted = false
+            //self.sort_complete = false
         } else {
-            self.sorted = true
+            self.sort_complete = true
         }
 
-        self.sorted
-    }
-}
-
-impl<'a, T> fmt::Display for BubbleSort<'a, T>
-where
-    T: PartialOrd + Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{:#?}\nv_len: {}\nouter_idx: {}\ninner_idx: {}\n",
-            self.v, self.v_len, self.outer_idx, self.inner_idx
-        )
+        self.sort_complete
     }
 }
 
@@ -118,11 +106,14 @@ mod tests {
     }
 
     #[test]
-    fn test_bubble_sort_constructor() {
+    fn test_empty_input() {
         let mut v0: Vec<u32> = Vec::new();
         let bs0 = BubbleSort::new(&mut v0);
         assert_eq!(bs0, Err(BubbleSortError::EmptyVecToSort));
+    }
 
+    #[test]
+    fn test_bubble_sort_constructor() {
         let mut v1 = vec![4, 2, 1];
         let bs1 = BubbleSort::new(&mut v1);
         assert_ne!(bs1, Err(BubbleSortError::EmptyVecToSort));
@@ -139,4 +130,95 @@ mod tests {
         assert_eq!(bs.outer_idx, 0);
         assert_eq!(bs.inner_idx, 0);
     }
-}
+
+    #[test]
+    fn test_bubble_sort_step() {
+        let mut v = vec![4, 1, 2];
+        let bs = BubbleSort::new(&mut v);
+        match bs {
+            Ok(mut bubble_sort) => {
+                println!("\nUnsorted vector\t\t{:?}", bubble_sort.get_vec());
+                println!("{:#?}", bubble_sort);
+
+                bubble_sort.algo_next();
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 4, 2]);
+                println!("{:#?}", bubble_sort);
+
+                bubble_sort.algo_next();
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
+                println!("{:#?}", bubble_sort);
+
+                bubble_sort.algo_next();
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
+                println!("{:#?}", bubble_sort);
+
+                bubble_sort.algo_next();
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
+                println!("{:#?}", bubble_sort);
+
+                bubble_sort.algo_next();
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
+                println!("{:#?}", bubble_sort);
+
+                bubble_sort.algo_next();
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
+                println!("{:#?}", bubble_sort);
+
+                bubble_sort.algo_next();
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
+                println!("{:#?}", bubble_sort);
+
+                assert_eq!(bubble_sort.is_sorted(), true);
+
+                println!("Step-wise bubble sort\t{:?}\n", bubble_sort.get_vec());
+                println!("{:#?}", bubble_sort);
+            }
+            Err(BubbleSortError::EmptyVecToSort) => {
+                println!("\nEmpty vector, nothing to sort!");
+            }
+        }
+    }
+
+    #[test]
+    fn test_pre_sorted_input() {
+        let mut v = vec![1, 2, 3];
+        let bs = BubbleSort::new(&mut v);
+        match bs {
+            Ok(mut bubble_sort) => {
+                println!("\nPre-sorted vector\t\t{:?}", bubble_sort.get_vec());
+                loop {
+                    if bubble_sort.algo_next() == true {
+                        assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
+                        println!("Step-wise bubble sort\t{:?}\n", bubble_sort.get_vec());
+
+                        break;
+                    }
+                }
+            },
+            Err(BubbleSortError::EmptyVecToSort) => {
+                println!("\nEmpty vector, nothing to sort!");
+            }
+        }
+    }
+
+    #[test]
+    fn test_reverse_sorted_input() {
+        let mut v = vec![3, 2, 1];
+        let bs = BubbleSort::new(&mut v);
+        match bs {
+            Ok(mut bubble_sort) => {
+                println!("\nReverse sorted vector\t\t{:?}", bubble_sort.get_vec());
+                loop {
+                    if bubble_sort.algo_next() == true {
+                        assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
+                        println!("Step-wise bubble sort\t{:?}\n", bubble_sort.get_vec());
+
+                        break;
+                    }
+                }
+            },
+            Err(BubbleSortError::EmptyVecToSort) => {
+                println!("\nEmpty vector, nothing to sort!");
+            }
+        }
+    }}
