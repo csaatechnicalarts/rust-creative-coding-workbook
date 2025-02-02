@@ -7,24 +7,30 @@ pub enum BubbleSortError {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct BubbleSort<'a, T: PartialOrd + Debug> {
-    v: &'a Vec<T>,
-    outer_max: u32,
+pub struct BubbleSort<'a, T>
+where
+    T: PartialOrd + Debug,
+{
+    v: &'a mut Vec<T>,
+    v_len: u32,
     outer_idx: u32,
     inner_idx: u32,
+    sorted: bool,
 }
 
 impl<'a, T> BubbleSort<'a, T>
-where T: PartialOrd + Debug 
+where
+    T: PartialOrd + Debug,
 {
-    pub fn new(v: &'a Vec<T>) -> Result<Self, BubbleSortError> {
+    pub fn new(v: &'a mut Vec<T>) -> Result<Self, BubbleSortError> {
         if v.len() > 0 {
             let v_len = v.len() as u32;
             let bubble_sort = BubbleSort {
                 v,
-                outer_max: v_len,
+                v_len,
                 outer_idx: 0,
                 inner_idx: 0,
+                sorted: false,
             };
 
             Ok(bubble_sort)
@@ -33,47 +39,55 @@ where T: PartialOrd + Debug
         }
     }
 
-    pub fn algo_next(&mut self) -> Option<&'a Vec<T>> {
-        if self.outer_idx < self.outer_max {
-            Some(self.v)
-        } else {
-            // The vector is sorted.
-            None
-        }
+    pub fn get_vec(&'a self) -> &'a Vec<T> {
+        self.v
     }
 
-    pub fn algo_prev(&mut self) -> Option<&'a Vec<T>> {
-        if self.outer_idx != 0 {
-            Some(self.v)
+    pub fn algo_next(&mut self) -> bool {
+        if !self.sorted && (self.outer_idx < self.v_len) {
+            if self.inner_idx < (self.v_len - 1 - self.outer_idx) {
+                let idx = self.inner_idx;
+                if self.v[self.inner_idx as usize] > self.v[self.inner_idx as usize + 1] {
+                    self.v.swap(idx as usize, idx as usize + 1);
+                }
+                self.inner_idx = self.inner_idx + 1;
+            } else {
+                self.inner_idx = 0;
+                self.outer_idx = self.outer_idx + 1;
+            }
+
+            self.sorted = false
         } else {
-            // The vector has been un-sorted back to its original state.
-            None
+            self.sorted = true
         }
+
+        self.sorted
     }
 }
 
 impl<'a, T> fmt::Display for BubbleSort<'a, T>
-where T: PartialOrd + Debug
+where
+    T: PartialOrd + Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:#?}\nouter_max: {}\nouter_idx: {}\ninner_idx: {}\n",
-               self.v,
-               self.outer_max,
-               self.outer_idx,
-               self.inner_idx)
+        write!(
+            f,
+            "{:#?}\nv_len: {}\nouter_idx: {}\ninner_idx: {}\n",
+            self.v, self.v_len, self.outer_idx, self.inner_idx
+        )
     }
 }
 
 // Big-O(n^2)
 // Visualization - https://www.hackerearth.com/practice/algorithms/sorting/bubble-sort/visualize/
-pub fn proto_bubble_sort <T: PartialOrd + Debug> (v: &mut [T]) {
+pub fn proto_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
     for p in 0..v.len() {
         let mut sorted = true;
         for i in 0..(v.len() - 1) - p {
-            if v[i] > v[i+1] {
+            if v[i] > v[i + 1] {
                 // std::mem::swap() - Swaps the value at two mutable locations,
                 // without deinitalizing either one.
-                v.swap(i, i+1);
+                v.swap(i, i + 1);
                 sorted = false;
             }
         }
@@ -103,12 +117,12 @@ mod tests {
 
     #[test]
     fn test_bubble_sort_constructor() {
-        let v0: Vec<u32> = Vec::new();
-        let bs0 = BubbleSort::new(&v0);
+        let mut v0: Vec<u32> = Vec::new();
+        let bs0 = BubbleSort::new(&mut v0);
         assert_eq!(bs0, Err(BubbleSortError::EmptyVecToSort));
 
-        let v1 = vec![4, 2, 1];
-        let bs1 = BubbleSort::new(&v1);
+        let mut v1 = vec![4, 2, 1];
+        let bs1 = BubbleSort::new(&mut v1);
         assert_ne!(bs1, Err(BubbleSortError::EmptyVecToSort));
 
         let bs = bs1.unwrap();
@@ -119,7 +133,7 @@ mod tests {
         assert_eq!(bs.v.get(2), Some(&1));
         assert_eq!(bs.v.get(3), None);
 
-        assert_eq!(bs.outer_max, 3);
+        assert_eq!(bs.v_len, 3);
         assert_eq!(bs.outer_idx, 0);
         assert_eq!(bs.inner_idx, 0);
     }
