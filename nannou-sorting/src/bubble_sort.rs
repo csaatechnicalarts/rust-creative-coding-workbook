@@ -6,8 +6,8 @@
 //! Combined with GUI functionality provided by [Nannou,](https://github.com/nannou-org/nannou) we can graphically walk through
 //! (or walk back) the steps of the bubble sort algorithm.
 
-use std::fmt::Debug;
 use std::collections::HashMap;
+use std::fmt::Debug;
 
 #[derive(Debug, PartialEq)]
 pub enum BubbleSortError {
@@ -19,7 +19,7 @@ pub enum BubbleSortError {
 /// BubbleSort::swap_events collects swap actions at particular points in the bubble sort process. The components of the HashMap are as follows:
 ///
 /// - Key - (u32, u32) where the first integer is the index of the bubble sort outer loop (self.outer_idx) and the second one is the inner index (self.inner_idx).
-/// - Value - Some(T, T) stores the two swapped values of type T; a None means no swap occurred.
+/// - Value - Option::Some(T, T) stores the two values prior to being swapped. Option::None means no swap occurred.
 
 #[derive(Debug, PartialEq)]
 pub struct BubbleSort<'a, T>
@@ -46,10 +46,10 @@ where
     /// let mut bs = BubbleSort::new(&mut v);
     /// match bs {
     ///     Ok(bubble_sort) => { // Run the bubble sort algorithm in this block.
-    ///        ... 
+    ///        ...
     ///     },
     ///     _ => { // Handle errors here.
-    ///        ... 
+    ///        ...
     ///     }
     /// }
     /// ```
@@ -98,13 +98,19 @@ where
         if !self.sort_complete && (self.outer_idx < self.v_len) {
             if self.inner_idx < (self.v_len - 1 - self.outer_idx) {
                 if self.v[self.inner_idx as usize] > self.v[self.inner_idx as usize + 1] {
+                    self.swap_events.insert(
+                        (self.outer_idx, self.inner_idx),
+                        Some((
+                            self.v[self.inner_idx as usize].clone(),
+                            self.v[self.inner_idx as usize + 1].clone(),
+                        )),
+                    );
                     self.v
                         .swap(self.inner_idx as usize, self.inner_idx as usize + 1);
-                    self.swap_events.insert((self.outer_idx, self.inner_idx), 
-                                            Some((self.v[self.inner_idx as usize].clone(), self.v[self.inner_idx as usize + 1].clone())));
                 } else {
                     // No swap occured.
-                    self.swap_events.insert((self.outer_idx, self.inner_idx), None);
+                    self.swap_events
+                        .insert((self.outer_idx, self.inner_idx), None);
                 }
                 self.inner_idx = self.inner_idx + 1;
             } else {
@@ -190,40 +196,55 @@ mod tests {
         match bs {
             Ok(mut bubble_sort) => {
                 println!("\nUnsorted vector\t\t{:?}", bubble_sort.get_vec());
-                println!("{:#?}", bubble_sort);
+                //println!("{:#?}", bubble_sort);
 
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 4, 2]);
-                println!("{:#?}", bubble_sort);
+                assert_eq!(bubble_sort.swap_events.len(), 1);
+                assert_eq!(
+                    *bubble_sort.swap_events.get(&(0 as u32, 0 as u32)).unwrap(),
+                    Some((4, 1))
+                );
+                println!("{:?}", bubble_sort);
 
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
-                println!("{:#?}", bubble_sort);
+                assert_eq!(bubble_sort.swap_events.len(), 2);
+                assert_eq!(
+                    *bubble_sort.swap_events.get(&(0 as u32, 1 as u32)).unwrap(),
+                    Some((4, 2))
+                );
+                println!("{:?}", bubble_sort);
 
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
-                println!("{:#?}", bubble_sort);
+                assert_eq!(bubble_sort.swap_events.len(), 2);
+                println!("{:?}", bubble_sort);
 
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
-                println!("{:#?}", bubble_sort);
+                assert_eq!(bubble_sort.swap_events.len(), 3);
+                println!("{:?}", bubble_sort);
 
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
-                println!("{:#?}", bubble_sort);
+                assert_eq!(bubble_sort.swap_events.len(), 3);
+                println!("{:?}", bubble_sort);
 
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
-                println!("{:#?}", bubble_sort);
+                assert_eq!(bubble_sort.swap_events.len(), 3);
+                println!("{:?}", bubble_sort);
 
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
-                println!("{:#?}", bubble_sort);
+                assert_eq!(bubble_sort.swap_events.len(), 3);
+                println!("{:?}", bubble_sort);
 
                 assert_eq!(bubble_sort.is_sorted(), true);
 
                 println!("Step-wise bubble sort\t{:?}\n", bubble_sort.get_vec());
-                println!("{:#?}", bubble_sort);
+                //println!("{:#?}", bubble_sort);
             }
             Err(BubbleSortError::EmptyVecToSort) => {
                 println!("\nEmpty vector, nothing to sort!");
@@ -232,27 +253,74 @@ mod tests {
     }
 
     #[test]
-    fn test_pre_sorted_input() {
+    fn test_pre_sorted_input_01() {
         let mut v = vec![1, 2, 3];
         let bs = BubbleSort::new(&mut v);
         match bs {
             Ok(mut bubble_sort) => {
-                println!("\nPre-sorted vector\t\t{:?}", bubble_sort.get_vec());
+                println!("\nPre-sorted 01 vector\t\t{:?}", bubble_sort.get_vec());
                 loop {
                     if bubble_sort.algo_next() == true {
                         assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
+                        assert_eq!(bubble_sort.swap_events.len(), 3);
+                        assert_eq!(
+                            *bubble_sort.swap_events.get(&(0 as u32, 0 as u32)).unwrap(),
+                            None
+                        );
+                        assert_eq!(
+                            *bubble_sort.swap_events.get(&(0 as u32, 1 as u32)).unwrap(),
+                            None
+                        );
+                        assert_eq!(
+                            *bubble_sort.swap_events.get(&(1 as u32, 0 as u32)).unwrap(),
+                            None
+                        );
                         println!("Step-wise bubble sort\t{:?}\n", bubble_sort.get_vec());
 
                         break;
                     }
                 }
-            },
+            }
             Err(BubbleSortError::EmptyVecToSort) => {
                 println!("\nEmpty vector, nothing to sort!");
             }
         }
     }
 
+    #[test]
+    fn test_pre_sorted_input_02() {
+        let mut v = vec![1, 1, 1];
+        let bs = BubbleSort::new(&mut v);
+        match bs {
+            Ok(mut bubble_sort) => {
+                println!("\nPre-sorted 02 vector\t\t{:?}", bubble_sort.get_vec());
+                loop {
+                    if bubble_sort.algo_next() == true {
+                        assert_eq!(*bubble_sort.get_vec(), vec![1, 1, 1]);
+                        assert_eq!(bubble_sort.swap_events.len(), 3);
+                        assert_eq!(
+                            *bubble_sort.swap_events.get(&(0 as u32, 0 as u32)).unwrap(),
+                            None
+                        );
+                        assert_eq!(
+                            *bubble_sort.swap_events.get(&(0 as u32, 1 as u32)).unwrap(),
+                            None
+                        );
+                        assert_eq!(
+                            *bubble_sort.swap_events.get(&(1 as u32, 0 as u32)).unwrap(),
+                            None
+                        );
+                        println!("Step-wise bubble sort\t{:?}\n", bubble_sort.get_vec());
+
+                        break;
+                    }
+                }
+            }
+            Err(BubbleSortError::EmptyVecToSort) => {
+                println!("\nEmpty vector, nothing to sort!");
+            }
+        }
+    }
     #[test]
     fn test_reverse_sorted_input() {
         let mut v = vec![3, 2, 1];
@@ -263,12 +331,25 @@ mod tests {
                 loop {
                     if bubble_sort.algo_next() == true {
                         assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
-                        println!("Step-wise bubble sort\t{:?}\n", bubble_sort.get_vec());
+                        assert_eq!(bubble_sort.swap_events.len(), 3);
+                        assert_eq!(
+                            *bubble_sort.swap_events.get(&(0 as u32, 0 as u32)).unwrap(),
+                            Some((3, 2))
+                        );
+                        assert_eq!(
+                            *bubble_sort.swap_events.get(&(0 as u32, 1 as u32)).unwrap(),
+                            Some((3, 1))
+                        );
+                        assert_eq!(
+                            *bubble_sort.swap_events.get(&(1 as u32, 0 as u32)).unwrap(),
+                            Some((2, 1))
+                        );
+                        println!("Step-wise bubble sort\t{:?}\n", bubble_sort);
 
                         break;
                     }
                 }
-            },
+            }
             Err(BubbleSortError::EmptyVecToSort) => {
                 println!("\nEmpty vector, nothing to sort!");
             }
