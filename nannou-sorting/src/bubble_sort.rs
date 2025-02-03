@@ -1,9 +1,31 @@
+//! **crate:nannou_sorting::BubbleSort** implements the bubble sort algorithm in two versions:
+//!
+//! - A textbook version of algorithm.
+//! - A step-wise implementation with step-forward and step-backward functionalities.
+//!
+//! Combined with GUI functionality provided by [Nannou,](https://github.com/nannou-org/nannou) we can graphically walk through
+//! (or walk back) the steps of the bubble sort algorithm.
+
 use std::fmt::Debug;
+use std::collections::HashMap;
+
+/// A HashMap type that represents a swap action at a particular step in the bubble sorting process. The two loop indices that drive the algorithm map to a swap event (or the absence of it).
+///
+/// - Key: (u32, u32) where the first integer is the index of the bubble sort outer loop and the
+/// second one is the inner index.
+/// - Value: Some(u32, u32) represents the two swapped values; a None means no swap occurred.
+
+#[derive(Debug, PartialEq)]
+struct SwapEvent {
+    swap_event: HashMap<(u32, u32), Option<(u32, u32)>>,
+}
 
 #[derive(Debug, PartialEq)]
 pub enum BubbleSortError {
     EmptyVecToSort,
 }
+
+/// The BubbleSort type encapsulates the stream of data to sort. In the textbook version, two nested loops drive the bubble sort algorithm forward. For the step-wise implementation, this type also extracts the two loop indices for keeping track of them globally.
 
 #[derive(Debug, PartialEq)]
 pub struct BubbleSort<'a, T>
@@ -15,12 +37,29 @@ where
     outer_idx: u32,
     inner_idx: u32,
     sort_complete: bool,
+    swap_events: SwapEvent,
 }
 
 impl<'a, T> BubbleSort<'a, T>
 where
     T: PartialOrd + Debug,
 {
+    /// The BubbleSort constructor method.
+    ///
+    /// # Example Usage:
+    ///
+    /// ```
+    /// let mut bs = BubbleSort::new(&mut v);
+    /// match bs {
+    ///     Ok(bubble_sort) => { // Run the bubble sort algorithm in this block.
+    ///        ... 
+    ///     },
+    ///     _ => { // Handle errors here.
+    ///        ... 
+    ///     }
+    /// }
+    /// ```
+
     pub fn new(v: &'a mut Vec<T>) -> Result<Self, BubbleSortError> {
         if v.len() > 0 {
             let v_len = v.len() as u32;
@@ -30,8 +69,10 @@ where
                 outer_idx: 0,
                 inner_idx: 0,
                 sort_complete: false,
+                swap_events: SwapEvent {
+                    swap_event: HashMap::new(),
+                },
             };
-
             Ok(bubble_sort)
         } else {
             Err(BubbleSortError::EmptyVecToSort)
@@ -46,6 +87,19 @@ where
         return self.sort_complete;
     }
 
+    /// A step-wise version of the bubble sort algorithm. It is the analog to BubbleSort::algo_prev().
+    /// # Example Usage
+    ///
+    /// ```
+    /// let mut bubble_sort = BubbleSort::new(&mut v); // v is a vector of data to sort
+    /// ...
+    /// loop {
+    ///     if bubble_sort::algo_next() == true {
+    ///         ...
+    ///         break;
+    ///     }
+    /// }
+    /// ```
     pub fn algo_next(&mut self) -> bool {
         if !self.sort_complete && (self.outer_idx < self.v_len) {
             if self.inner_idx < (self.v_len - 1 - self.outer_idx) {
@@ -68,8 +122,7 @@ where
     }
 }
 
-// Big-O(n^2)
-// Visualization - https://www.hackerearth.com/practice/algorithms/sorting/bubble-sort/visualize/
+/// Textbook implementation of bubble sort.
 pub fn proto_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
     for p in 0..v.len() {
         let mut sorted = true;
