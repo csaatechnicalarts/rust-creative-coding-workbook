@@ -9,40 +9,34 @@
 use std::fmt::Debug;
 use std::collections::HashMap;
 
-/// A HashMap type that represents a swap action at a particular step in the bubble sorting process. The two loop indices that drive the algorithm map to a swap event (or the absence of it).
-///
-/// - Key: (u32, u32) where the first integer is the index of the bubble sort outer loop and the
-/// second one is the inner index.
-/// - Value: Some(u32, u32) represents the two swapped values; a None means no swap occurred.
-
-#[derive(Debug, PartialEq)]
-struct SwapEvent {
-    swap_event: HashMap<(u32, u32), Option<(u32, u32)>>,
-}
-
 #[derive(Debug, PartialEq)]
 pub enum BubbleSortError {
     EmptyVecToSort,
 }
 
-/// The BubbleSort type encapsulates the stream of data to sort. In the textbook version, two nested loops drive the bubble sort algorithm forward. For the step-wise implementation, this type also extracts the two loop indices for keeping track of them globally.
+/// This type encapsulates the stream of data to sort. In the textbook version of the bubble sort algorithm, two nested loops drive the sorting process forward. For the step-wise implementation here, the BubbleSort type also extracts the two loop indices for keeping track of them globally.
+///
+/// BubbleSort::swap_events represents a swap action at a particular point in the bubble sort process. The components of the HashMap are as follows:
+///
+/// - Key - (u32, u32) where the first integer is the index of the bubble sort outer loop (self.outer_idx) and the second one is the inner index (self.inner_idx).
+/// - Value - Some(T, T) stores the two swapped values of type T; a None means no swap occurred.
 
 #[derive(Debug, PartialEq)]
 pub struct BubbleSort<'a, T>
 where
-    T: PartialOrd + Debug,
+    T: PartialOrd + Debug + Clone,
 {
     v: &'a mut Vec<T>,
     v_len: u32,
     outer_idx: u32,
     inner_idx: u32,
     sort_complete: bool,
-    swap_events: SwapEvent,
+    swap_events: HashMap<(u32, u32), Option<(T, T)>>,
 }
 
 impl<'a, T> BubbleSort<'a, T>
 where
-    T: PartialOrd + Debug,
+    T: PartialOrd + Debug + Clone,
 {
     /// The BubbleSort constructor method.
     ///
@@ -69,9 +63,10 @@ where
                 outer_idx: 0,
                 inner_idx: 0,
                 sort_complete: false,
-                swap_events: SwapEvent {
+                /*swap_events: SwapEvent {
                     swap_event: HashMap::new(),
-                },
+                },*/
+                swap_events: HashMap::new(),
             };
             Ok(bubble_sort)
         } else {
@@ -88,6 +83,7 @@ where
     }
 
     /// A step-wise version of the bubble sort algorithm. It is the analog to BubbleSort::algo_prev().
+    ///
     /// # Example Usage
     ///
     /// ```
@@ -100,12 +96,18 @@ where
     ///     }
     /// }
     /// ```
+
     pub fn algo_next(&mut self) -> bool {
         if !self.sort_complete && (self.outer_idx < self.v_len) {
             if self.inner_idx < (self.v_len - 1 - self.outer_idx) {
                 if self.v[self.inner_idx as usize] > self.v[self.inner_idx as usize + 1] {
                     self.v
                         .swap(self.inner_idx as usize, self.inner_idx as usize + 1);
+                    self.swap_events.insert((self.outer_idx, self.inner_idx), 
+                                            Some((self.v[self.inner_idx as usize].clone(), self.v[self.inner_idx as usize + 1].clone())));
+                } else {
+                    // No swap occured.
+                    self.swap_events.insert((self.outer_idx, self.inner_idx), None);
                 }
                 self.inner_idx = self.inner_idx + 1;
             } else {
@@ -122,7 +124,7 @@ where
     }
 }
 
-/// Textbook implementation of bubble sort.
+/// Textbook implementation of bubble sort, mainly for reference.
 pub fn proto_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
     for p in 0..v.len() {
         let mut sorted = true;
@@ -274,4 +276,5 @@ mod tests {
                 println!("\nEmpty vector, nothing to sort!");
             }
         }
-    }}
+    }
+}
