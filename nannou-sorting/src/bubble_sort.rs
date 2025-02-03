@@ -216,20 +216,29 @@ mod tests {
                 );
                 println!("{:?}", bubble_sort);
 
+                // In this next function call the bubble sort algorithm is paused. Only
+                // housekeeping tasks are done here, adjusting the inner and outer indices.
+                
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
                 assert_eq!(bubble_sort.swap_events.len(), 2);
                 println!("{:?}", bubble_sort);
 
+                // Here the bubble sort algorithm resumes. The third and final swap takes place.
+
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
                 assert_eq!(bubble_sort.swap_events.len(), 3);
+                assert_eq!(
+                    *bubble_sort.swap_events.get(&(1 as u32, 0 as u32)).unwrap(),
+                    None
+                );
                 println!("{:?}", bubble_sort);
 
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
                 assert_eq!(bubble_sort.swap_events.len(), 3);
-                println!("{:?}", bubble_sort);
+                println!("{:?}", bubble_sort);;
 
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
