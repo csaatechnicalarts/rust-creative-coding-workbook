@@ -16,7 +16,7 @@ pub enum BubbleSortError {
 
 /// This type encapsulates the stream of data to sort. In the textbook version of the bubble sort algorithm, two nested loops drive the sorting process forward. For the step-wise implementation here, the BubbleSort type also extracts the two loop indices for keeping track of them globally.
 ///
-/// BubbleSort::swap_events represents a swap action at a particular point in the bubble sort process. The components of the HashMap are as follows:
+/// BubbleSort::swap_events collects swap actions at particular points in the bubble sort process. The components of the HashMap are as follows:
 ///
 /// - Key - (u32, u32) where the first integer is the index of the bubble sort outer loop (self.outer_idx) and the second one is the inner index (self.inner_idx).
 /// - Value - Some(T, T) stores the two swapped values of type T; a None means no swap occurred.
@@ -63,9 +63,6 @@ where
                 outer_idx: 0,
                 inner_idx: 0,
                 sort_complete: false,
-                /*swap_events: SwapEvent {
-                    swap_event: HashMap::new(),
-                },*/
                 swap_events: HashMap::new(),
             };
             Ok(bubble_sort)
