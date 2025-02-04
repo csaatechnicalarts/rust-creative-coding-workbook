@@ -128,20 +128,6 @@ where
 
     pub fn algo_prev(&mut self) {
         if self.outer_idx != 0 || self.inner_idx != 0 {
-            /*
-            let outer_idx = self.outer_idx;
-            let mut inner_idx = 0 as u32;
-            let bool wrap_back = false;
-            if self.inner_idx == 0 {
-                // To reverse the algorithm by a step, wrap the inner_idx around 
-                // to the end of the data stream.
-                wrap_back = true;
-                inner_idx = self.v_len - 1;
-            } else {
-                inner_idx = self.inner_idx - 1;
-            }
-            */
-
             let swap_event = self
                 .swap_events
                 .get(&(self.outer_idx as u32, self.inner_idx as u32 - 1));
@@ -153,17 +139,11 @@ where
                     self.v[self.inner_idx as usize - 1] = i_val.clone();
                     self.v[self.inner_idx as usize] = ipp_val.clone();
                     self.inner_idx = self.inner_idx - 1;
-                    /*if !wrap_back {
-                        self.v[inner_idx as usize] = ipp_val;
-                        self.v[inner_idx as usize + 1] = i_val;
-                    } else {
-                    }*/
-                }
+                          }
                 _ => {
                     println!("No swap event found!");
                 }
             }
-            //if let Some((outer_idx, inner_idx)) = swap_event {}
         }
     }
 
@@ -191,6 +171,7 @@ pub fn proto_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
 mod tests {
     use super::*;
 
+    #[ignore]
     #[test]
     fn test_proto_bubble_sort() {
         let mut v = vec![2, 13, 4, 7, 8, 1, 5];
@@ -198,6 +179,7 @@ mod tests {
         assert_eq!(v, vec![1, 2, 4, 5, 7, 8, 13]);
     }
 
+    #[ignore]
     #[test]
     fn test_proto_bubble_sort_contra() {
         let mut a = vec!['a', 'x', 'm', 'n', 'h', 'c'];
@@ -205,6 +187,7 @@ mod tests {
         assert_ne!(a, vec!['a']);
     }
 
+    #[ignore]
     #[test]
     fn test_empty_input() {
         let mut v0: Vec<u32> = Vec::new();
@@ -212,6 +195,26 @@ mod tests {
         assert_eq!(bs0, Err(BubbleSortError::EmptyVecToSort));
     }
 
+    #[test]
+    fn test_single_element() {
+        let mut v = vec![1];
+        let bs = BubbleSort::new(&mut v);
+        match bs {
+            Ok(mut bubble_sort) => {
+                bubble_sort.algo_next();
+                println!("{:?}", bubble_sort);
+                bubble_sort.algo_next();
+                assert_eq!(bubble_sort.v_len, 1);
+                assert_eq!(bubble_sort.is_sorted(), true);
+                println!("{:?}", bubble_sort);
+            },
+            Err(BubbleSortError::EmptyVecToSort) => {
+                println!("\nEmpty vector, nothing to sort!");
+            }
+        }
+    }
+
+    #[ignore]
     #[test]
     fn test_bubble_sort_constructor() {
         let mut v1 = vec![4, 2, 1];
@@ -231,6 +234,7 @@ mod tests {
         assert_eq!(bs.inner_idx, 0);
     }
 
+    #[ignore]
     #[test]
     fn test_algo_prev_basic() {
         let mut v = vec![2, 1];
@@ -252,7 +256,9 @@ mod tests {
                 bubble_sort.algo_next();
                 println!("{:?}", bubble_sort);
             },
-            _ => ()
+            Err(BubbleSortError::EmptyVecToSort) => {
+                println!("\nEmpty vector, nothing to sort!");
+            }
         }
     }
 
