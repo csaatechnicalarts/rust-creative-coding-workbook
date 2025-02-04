@@ -117,8 +117,6 @@ where
                 self.inner_idx = 0;
                 self.outer_idx = self.outer_idx + 1;
             }
-
-            //self.sort_complete = false
         } else {
             self.sort_complete = true
         }
@@ -128,6 +126,8 @@ where
 
     pub fn algo_prev(&mut self) {
         if self.outer_idx != 0 || self.inner_idx != 0 {
+            // At this point, inner_idx has been incremented in the preceeding algo_next() call. 
+            // Use the index_idx - 1 to find any corresponding swap event.
             let swap_event = self
                 .swap_events
                 .get(&(self.outer_idx as u32, self.inner_idx as u32 - 1));
@@ -138,8 +138,13 @@ where
                     println!("To swap back: {} <- {}", i_val, ipp_val);
                     self.v[self.inner_idx as usize - 1] = i_val.clone();
                     self.v[self.inner_idx as usize] = ipp_val.clone();
+
+                    self.swap_events.remove(&(self.outer_idx as u32, self.inner_idx as u32 - 1));
                     self.inner_idx = self.inner_idx - 1;
-                          }
+                    if self.sort_complete == true {
+                        self.sort_complete = false;
+                    }
+                }
                 _ => {
                     println!("No swap event found!");
                 }
@@ -195,12 +200,14 @@ mod tests {
         assert_eq!(bs0, Err(BubbleSortError::EmptyVecToSort));
     }
 
+    #[ignore]
     #[test]
     fn test_single_element() {
         let mut v = vec![1];
         let bs = BubbleSort::new(&mut v);
         match bs {
             Ok(mut bubble_sort) => {
+                println!("{:?}", bubble_sort);
                 bubble_sort.algo_next();
                 println!("{:?}", bubble_sort);
                 bubble_sort.algo_next();
@@ -234,7 +241,6 @@ mod tests {
         assert_eq!(bs.inner_idx, 0);
     }
 
-    #[ignore]
     #[test]
     fn test_algo_prev_basic() {
         let mut v = vec![2, 1];
@@ -244,17 +250,41 @@ mod tests {
                 println!("{:?}", bubble_sort);
                 bubble_sort.algo_next();
                 println!("{:?}", bubble_sort);
+
                 bubble_sort.algo_prev();
+                assert_eq!(bubble_sort.is_sorted(), false);
+                assert_eq!(bubble_sort.swap_events.len(), 0);
+                assert_eq!(*bubble_sort.get_vec(), vec![2, 1]);
+
                 println!("{:?}", bubble_sort);
                 bubble_sort.algo_next();
+                assert_eq!(bubble_sort.is_sorted(), false);
+                assert_eq!(bubble_sort.swap_events.len(), 1);
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2]);
                 println!("{:?}", bubble_sort);
 
+                // Housekeeping steps follow, until sort_complete is set to true.
                 bubble_sort.algo_next();
                 println!("{:?}", bubble_sort);
                 bubble_sort.algo_next();
                 println!("{:?}", bubble_sort);
                 bubble_sort.algo_next();
+                assert_eq!(bubble_sort.is_sorted(), true);
                 println!("{:?}", bubble_sort);
+            },
+            Err(BubbleSortError::EmptyVecToSort) => {
+                println!("\nEmpty vector, nothing to sort!");
+            }
+        }
+    }
+
+    #[ignore]
+    #[test]
+    fn test_algo_prev_01() {
+        let mut v = vec![1, 3, 2];
+        let bs = BubbleSort::new(&mut v);
+        match bs {
+            Ok(mut _bubble_sort) => {
             },
             Err(BubbleSortError::EmptyVecToSort) => {
                 println!("\nEmpty vector, nothing to sort!");
