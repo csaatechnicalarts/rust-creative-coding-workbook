@@ -88,7 +88,11 @@ where
     /// As per the algorithm, algo_next() compares the data at i-th and i-plus-one-th indices and
     /// swaps them accordingly, or not. It then adjusts global variables that track the state of
     /// the algorithm's progress. The function also updates the swap_events mapping, recording the
-    /// occurrance or absence of a swap at a given (i-th, i-plus-one-th) combination.
+    /// occurrance or absence of a swap at a given (i-th, i-plus-one-th) combination. 
+    ///
+    /// Note that calls to algo_next() do not always result in a comparison-and-swap operation. 
+    /// Instead algo_next() may take book-keeping steps to adjust global vaiables that track
+    /// the algorithm's progress.
     ///
     /// # Example Usage
     ///
@@ -133,11 +137,11 @@ where
         self.sort_complete
     }
 
-    /// A step-wise reversal of the bubble sort algorithm that is the analog to the BubbleSort::algo_next(). 
-    /// Calls to algo_next() update the swap_events map, archiving the presence or absense of data
-    /// swaps, Option::Some<u32, u32> or Option::None respectively. An undo-step of the algorithm
-    /// reverts the data stream and global variables to their prior state, ignoring housekeeping
-    /// steps taken by previous algo_next() calls.
+    /// A step-wise reversal of the bubble sort algorithm. This function is the analog to BubbleSort::algo_next(). 
+    /// Calls to algo_next() update the swap_events map, archiving the presence or absense of data swaps, 
+    /// Option::Some<u32, u32> or Option::None respectively. A corresponding call to algo_prev() reverts the data 
+    /// stream and the global variables to their prior state, clearing the last entry to the swap_events map accordingly.
+    /// This function ignores book-keeping steps taken in previous algo_next() calls.
     
     pub fn algo_prev(&mut self) {
         let last_swap_event = self.swap_events.last_key_value();
