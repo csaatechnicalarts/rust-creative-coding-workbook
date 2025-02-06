@@ -85,6 +85,10 @@ where
     }
 
     /// A step-wise version of the bubble sort algorithm. It is the analog to BubbleSort::algo_prev().
+    /// As per the algorithm, algo_next() compares the data at i-th and i-plus-one-th indices and
+    /// swaps them accordingly, or not. It then adjusts global variables that track the state of
+    /// the algorithm's progress. The function also updates the swap_events mapping, recording the
+    /// occurrance or absence of a swap at a given (i-th, i-plus-one-th) combination.
     ///
     /// # Example Usage
     ///
@@ -129,6 +133,12 @@ where
         self.sort_complete
     }
 
+    /// A step-wise reversal of the bubble sort algorithm that is the analog to the BubbleSort::algo_next(). 
+    /// Calls to algo_next() update the swap_events map, archiving the presence or absense of data
+    /// swaps, Option::Some<u32, u32> or Option::None respectively. An undo-step of the algorithm
+    /// reverts the data stream and global variables to their prior state, ignoring housekeeping
+    /// steps taken by previous algo_next() calls.
+    
     pub fn algo_prev(&mut self) {
         let last_swap_event = self.swap_events.last_key_value();
 
@@ -141,70 +151,28 @@ where
                     .swap_events
                     .get(&(swap_outer_idx as u32, swap_inner_idx as u32));
 
-                match swap_event {
-                    Some(&Option::Some((ref i_val, ref ipp_val))) => {
-                        // i_val is the archived value at inner_idx.
-                        // ipp_val is the archived value at "i plus-plus", i.e. inner_idx + 1.
-                        self.v[swap_inner_idx as usize] = i_val.clone();
-                        self.v[swap_inner_idx as usize + 1] = ipp_val.clone();
-
-                        self.swap_events.remove(&(swap_outer_idx as u32, swap_inner_idx as u32));
-
-                        self.inner_idx = swap_inner_idx;
-                        self.outer_idx = swap_outer_idx;
-
-                        if self.sort_complete == true {
-                            self.sort_complete = false;
-                        }
-                    }
-                    _ => {
-                        println!("No swap event found!");
-                    }
-                }
-            },
-            None => {
-                // No swap event to undo.
-            }
-        }
-    }
-
-    pub fn algo_prev_proto(&mut self) {
-        if self.outer_idx != 0 || self.inner_idx != 0 {
-            // At this point, inner_idx has been incremented in the preceeding algo_next() call. 
-            // Use the index_idx - 1 to find any corresponding swap event.
-
-            let swap_outer_idx = self.outer_idx;
-            let swap_inner_idx = self.inner_idx - 1;
-
-            let swap_event = self
-                .swap_events
-                //.get(&(self.outer_idx as u32, self.inner_idx as u32 - 1));
-                .get(&(swap_outer_idx as u32, swap_inner_idx as u32));
-            match swap_event {
-                Some(&Option::Some((ref i_val, ref ipp_val))) => {
+                if let Some(&Option::Some((ref i_val, ref ipp_val))) = swap_event {
                     // i_val is the archived value at inner_idx.
                     // ipp_val is the archived value at "i plus-plus", i.e. inner_idx + 1.
-                    //self.v[self.inner_idx as usize - 1] = i_val.clone();
                     self.v[swap_inner_idx as usize] = i_val.clone();
-                    //self.v[self.inner_idx as usize] = ipp_val.clone();
                     self.v[swap_inner_idx as usize + 1] = ipp_val.clone();
 
-                    //self.swap_events.remove(&(self.outer_idx as u32, self.inner_idx as u32 - 1));
                     self.swap_events.remove(&(swap_outer_idx as u32, swap_inner_idx as u32));
-                    //self.inner_idx = self.inner_idx - 1;
+
                     self.inner_idx = swap_inner_idx;
+                    self.outer_idx = swap_outer_idx;
+
                     if self.sort_complete == true {
                         self.sort_complete = false;
                     }
-                }
-                _ => {
-                    println!("No swap event found!");
-                }
-            }
+                } // Ignore swap event with None for the given (swap_outer_idx, swap_inner_idx) key.
+            },
+            None => {
+                // Empy swap_events. Nothing to undo.
+            } 
         }
     }
 }
-
 
 /// Textbook implementation of bubble sort, mainly for reference.
 pub fn proto_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
