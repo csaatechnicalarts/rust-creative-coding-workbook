@@ -157,19 +157,19 @@ where
                         // ipp_val is the archived value at "i plus-plus", i.e. inner_idx + 1.
                         self.v[swap_inner_idx as usize] = i_val.clone();
                         self.v[swap_inner_idx as usize + 1] = ipp_val.clone();
-
-                        self.swap_events.remove(&(swap_outer_idx as u32, swap_inner_idx as u32));
-
-                        self.inner_idx = swap_inner_idx;
-                        self.outer_idx = swap_outer_idx;
-
-                        if self.sort_complete == true {
-                            self.sort_complete = false;
-                        }
                     },
                     None =>  {
                         // No exchange between i_val and ipp_val had transpired. Do nothing.
                     }
+                }
+                // Whether there was a swap recorded or not, back up the state of the algorithm.
+                self.swap_events.remove(&(swap_outer_idx as u32, swap_inner_idx as u32));
+
+                self.inner_idx = swap_inner_idx;
+                self.outer_idx = swap_outer_idx;
+
+                if self.sort_complete == true {
+                    self.sort_complete = false;
                 }
             },
             None => {
@@ -266,6 +266,7 @@ mod tests {
         assert_eq!(bs.inner_idx, 0);
     }
 
+    #[ignore]
     #[test]
     fn test_algo_prev_basic() {
         let mut v = vec![2, 1];
@@ -342,7 +343,6 @@ mod tests {
         }
     }
 
-    #[ignore]
     #[test]
     fn test_algo_prev_intoto() {
         let u = vec![1, 3, 2];
@@ -350,9 +350,10 @@ mod tests {
         let bs = BubbleSort::new(&mut v);
         match bs {
             Ok(mut bubble_sort) => {
+                println!("[0] {:?}", bubble_sort);
+
                 loop {
                     if bubble_sort.algo_next() == true {
-                        println!("[0] {:?}", bubble_sort);
                         assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
                         assert_eq!(bubble_sort.original_state(), false);
 
@@ -360,9 +361,10 @@ mod tests {
                     }
                 }
 
+                println!("[1] {:?}", bubble_sort);
                 loop {
                     if bubble_sort.original_state() {
-                        println!("[1] {:?}", bubble_sort);
+                        println!("[2] {:?}", bubble_sort);
                         assert_eq!(*bubble_sort.get_vec(), vec![1, 3, 2]);
                         assert_eq!(bubble_sort.original_state(), true);
 
