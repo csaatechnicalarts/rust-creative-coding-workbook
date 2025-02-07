@@ -13,7 +13,8 @@ fn main() {
     let bs = BubbleSort::new(&mut w);
     match bs {
         Ok(mut bubble_sort) => loop {
-            if bubble_sort.algo_next() == true {
+            bubble_sort.algo_next();
+            if bubble_sort.is_sorted() == true {
                 println!("Step-wise bubble sort\t{:?}", bubble_sort.get_vec());
 
                 break;

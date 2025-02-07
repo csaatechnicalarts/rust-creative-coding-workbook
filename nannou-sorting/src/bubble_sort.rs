@@ -14,6 +14,18 @@ pub enum BubbleSortError {
     EmptyVecToSort,
 }
 
+pub enum AlgoPrevAction<T> {
+    UndoSwap((u32, u32), (T, T)),
+    NoSwap((u32, u32)),
+    EmptySwapEvents()
+}
+
+pub enum AlgoNextAction<T> {
+    BookKeeping(),
+    Swap((u32, u32), (T, T)),
+    NoSwap((u32, u32))
+}
+
 /// This type encapsulates the stream of data to sort. In the textbook version of the bubble sort algorithm, two nested loops drive the sorting process forward. For the step-wise implementation here, the BubbleSort type also extracts the two loop indices for keeping track of them globally.
 ///
 /// BubbleSort::swap_events collects swap actions at particular points in the bubble sort process. The components of the HashMap are as follows:
@@ -107,7 +119,9 @@ where
     /// }
     /// ```
 
-    pub fn algo_next(&mut self) -> bool {
+    //pub fn algo_next(&mut self) -> bool {
+    pub fn algo_next(&mut self) -> AlgoNextAction<T> {
+        let ret_val: AlgoNextAction<T>;
         if !self.sort_complete && (self.outer_idx < self.v_len) {
             if self.inner_idx < (self.v_len - 1 - self.outer_idx) {
                 if self.v[self.inner_idx as usize] > self.v[self.inner_idx as usize + 1] {
@@ -120,21 +134,33 @@ where
                     );
                     self.v
                         .swap(self.inner_idx as usize, self.inner_idx as usize + 1);
+                    
+                    ret_val = AlgoNextAction::Swap((self.outer_idx, self.inner_idx), 
+                                                     (self.v[self.inner_idx as usize].clone(), 
+                                                     self.v[self.inner_idx as usize + 1].clone())
+                              );
                 } else {
                     // No swap occured.
                     self.swap_events
                         .insert((self.outer_idx, self.inner_idx), None);
+                
+                    ret_val = AlgoNextAction::NoSwap((self.outer_idx, self.inner_idx));
                 }
                 self.inner_idx = self.inner_idx + 1;
             } else {
                 self.inner_idx = 0;
                 self.outer_idx = self.outer_idx + 1;
+            
+                ret_val = AlgoNextAction::BookKeeping();
             }
         } else {
-            self.sort_complete = true
+            self.sort_complete = true;
+
+            ret_val = AlgoNextAction::BookKeeping();
         }
 
-        self.sort_complete
+        ret_val
+        //self.sort_complete
     }
 
     /// A step-wise reversal of the bubble sort algorithm. This function is the analog to BubbleSort::algo_next(). 
@@ -143,7 +169,8 @@ where
     /// stream and the global variables to their prior state, clearing the last entry to the swap_events map accordingly.
     /// This function ignores book-keeping steps taken in previous algo_next() calls.
     
-    pub fn algo_prev(&mut self) {
+    pub fn algo_prev(&mut self) -> AlgoPrevAction<T> {
+        let ret_val: AlgoPrevAction<T>;
         let last_swap_event = self.swap_events.last_key_value();
 
         match last_swap_event {
@@ -157,9 +184,12 @@ where
                         // ipp_val is the archived value at "i plus-plus", i.e. inner_idx + 1.
                         self.v[swap_inner_idx as usize] = i_val.clone();
                         self.v[swap_inner_idx as usize + 1] = ipp_val.clone();
+                
+                        ret_val = AlgoPrevAction::UndoSwap((swap_outer_idx, swap_inner_idx), (i_val.clone(), ipp_val.clone()));
                     },
                     None =>  {
                         // No exchange between i_val and ipp_val had transpired. Do nothing.
+                        ret_val = AlgoPrevAction::NoSwap((swap_outer_idx, swap_inner_idx));
                     }
                 }
                 // Whether there was a swap recorded or not, back up the state of the algorithm.
@@ -174,8 +204,11 @@ where
             },
             None => {
                 // Empty swap_events map. Nothing to undo.
+                ret_val = AlgoPrevAction::EmptySwapEvents();
             } 
         }
+
+        ret_val
     }
 }
 
@@ -201,7 +234,6 @@ pub fn proto_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
 mod tests {
     use super::*;
 
-    #[ignore]
     #[test]
     fn test_proto_bubble_sort() {
         let mut v = vec![2, 13, 4, 7, 8, 1, 5];
@@ -209,7 +241,6 @@ mod tests {
         assert_eq!(v, vec![1, 2, 4, 5, 7, 8, 13]);
     }
 
-    #[ignore]
     #[test]
     fn test_proto_bubble_sort_contra() {
         let mut a = vec!['a', 'x', 'm', 'n', 'h', 'c'];
@@ -217,7 +248,6 @@ mod tests {
         assert_ne!(a, vec!['a']);
     }
 
-    #[ignore]
     #[test]
     fn test_empty_input() {
         let mut v0: Vec<u32> = Vec::new();
@@ -225,7 +255,6 @@ mod tests {
         assert_eq!(bs0, Err(BubbleSortError::EmptyVecToSort));
     }
 
-    #[ignore]
     #[test]
     fn test_single_element() {
         let mut v = vec![1];
@@ -246,7 +275,6 @@ mod tests {
         }
     }
 
-    #[ignore]
     #[test]
     fn test_bubble_sort_constructor() {
         let mut v1 = vec![4, 2, 1];
@@ -266,7 +294,6 @@ mod tests {
         assert_eq!(bs.inner_idx, 0);
     }
 
-    #[ignore]
     #[test]
     fn test_algo_prev_basic() {
         let mut v = vec![2, 1];
@@ -344,7 +371,7 @@ mod tests {
     }
 
     #[test]
-    fn test_algo_prev_intoto() {
+    fn test_algo_prev_loops() {
         let u = vec![1, 3, 2];
         let mut v = u.clone();
         let bs = BubbleSort::new(&mut v);
@@ -353,7 +380,8 @@ mod tests {
                 println!("[0] {:?}", bubble_sort);
 
                 loop {
-                    if bubble_sort.algo_next() == true {
+                    bubble_sort.algo_next();
+                    if bubble_sort.is_sorted() == true {
                         assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
                         assert_eq!(bubble_sort.original_state(), false);
 
@@ -381,6 +409,13 @@ mod tests {
     }
 
     #[ignore]
+    #[test]
+    fn test_algo_prev_sorted_vec() {
+        let mut u = vec![1, 2, 3];
+        let _bs_01 = BubbleSort::new(&mut u);
+
+    }
+
     #[test]
     fn test_bubble_sort_step() {
         let mut v = vec![4, 1, 2];
@@ -453,7 +488,6 @@ mod tests {
         }
     }
 
-    #[ignore]
     #[test]
     fn test_pre_sorted_input_01() {
         let mut v = vec![1, 2, 3];
@@ -462,7 +496,8 @@ mod tests {
             Ok(mut bubble_sort) => {
                 println!("\nPre-sorted 01 vector\t\t{:?}", bubble_sort.get_vec());
                 loop {
-                    if bubble_sort.algo_next() == true {
+                    bubble_sort.algo_next();
+                    if bubble_sort.is_sorted() == true {
                         assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
                         assert_eq!(bubble_sort.swap_events.len(), 3);
                         assert_eq!(
@@ -489,7 +524,6 @@ mod tests {
         }
     }
 
-    #[ignore]
     #[test]
     fn test_pre_sorted_input_02() {
         let mut v = vec![1, 1, 1];
@@ -498,7 +532,8 @@ mod tests {
             Ok(mut bubble_sort) => {
                 println!("\nPre-sorted 02 vector\t\t{:?}", bubble_sort.get_vec());
                 loop {
-                    if bubble_sort.algo_next() == true {
+                    bubble_sort.algo_next();
+                    if bubble_sort.is_sorted() == true {
                         assert_eq!(*bubble_sort.get_vec(), vec![1, 1, 1]);
                         assert_eq!(bubble_sort.swap_events.len(), 3);
                         assert_eq!(
@@ -525,7 +560,6 @@ mod tests {
         }
     }
     
-    #[ignore]
     #[test]
     fn test_reverse_sorted_input() {
         let mut v = vec![3, 2, 1];
@@ -534,7 +568,8 @@ mod tests {
             Ok(mut bubble_sort) => {
                 println!("\nReverse sorted vector\t\t{:?}", bubble_sort.get_vec());
                 loop {
-                    if bubble_sort.algo_next() == true {
+                    bubble_sort.algo_next();
+                    if bubble_sort.is_sorted() == true {
                         assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
                         assert_eq!(bubble_sort.swap_events.len(), 3);
                         assert_eq!(
