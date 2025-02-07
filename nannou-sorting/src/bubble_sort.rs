@@ -147,32 +147,33 @@ where
         let last_swap_event = self.swap_events.last_key_value();
 
         match last_swap_event {
-            Some((key_swap_event, _)) => {
+            Some((key_swap_event, val_swap_event)) => {
                 let swap_outer_idx = key_swap_event.0;
                 let swap_inner_idx = key_swap_event.1;
 
-                let swap_event = self
-                    .swap_events
-                    .get(&(swap_outer_idx as u32, swap_inner_idx as u32));
+                match val_swap_event {
+                    Some((ref i_val, ref ipp_val)) => {
+                        // i_val is the archived value at inner_idx.
+                        // ipp_val is the archived value at "i plus-plus", i.e. inner_idx + 1.
+                        self.v[swap_inner_idx as usize] = i_val.clone();
+                        self.v[swap_inner_idx as usize + 1] = ipp_val.clone();
 
-                if let Some(&Option::Some((ref i_val, ref ipp_val))) = swap_event {
-                    // i_val is the archived value at inner_idx.
-                    // ipp_val is the archived value at "i plus-plus", i.e. inner_idx + 1.
-                    self.v[swap_inner_idx as usize] = i_val.clone();
-                    self.v[swap_inner_idx as usize + 1] = ipp_val.clone();
+                        self.swap_events.remove(&(swap_outer_idx as u32, swap_inner_idx as u32));
 
-                    self.swap_events.remove(&(swap_outer_idx as u32, swap_inner_idx as u32));
+                        self.inner_idx = swap_inner_idx;
+                        self.outer_idx = swap_outer_idx;
 
-                    self.inner_idx = swap_inner_idx;
-                    self.outer_idx = swap_outer_idx;
-
-                    if self.sort_complete == true {
-                        self.sort_complete = false;
+                        if self.sort_complete == true {
+                            self.sort_complete = false;
+                        }
+                    },
+                    None =>  {
+                        // No exchange between i_val and ipp_val had transpired. Do nothing.
                     }
-                } // Ignore swap event with None for the given (swap_outer_idx, swap_inner_idx) key.
+                }
             },
             None => {
-                // Empy swap_events. Nothing to undo.
+                // Empty swap_events map. Nothing to undo.
             } 
         }
     }
