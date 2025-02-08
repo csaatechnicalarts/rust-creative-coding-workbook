@@ -28,7 +28,7 @@ pub enum AlgoNextAction<T> {
 
 /// This type encapsulates the stream of data to sort. In the textbook version of the bubble sort algorithm, two nested loops drive the sorting process forward. For the step-wise implementation here, the BubbleSort type also extracts the two loop indices for keeping track of them globally.
 ///
-/// BubbleSort::swap_events collects swap actions at particular points in the bubble sort process. The components of the HashMap are as follows:
+/// BubbleSort::swap_events collects swap actions at particular points in the bubble sort process. The components of the BTreeMap are as follows:
 ///
 /// - Key - (u32, u32) where the first integer is the index of the bubble sort outer loop (self.outer_idx) and the second one is the inner index (self.inner_idx).
 /// - Value - Option::Some(T, T) stores the two values prior to being swapped. Option::None means no swap occurred.
@@ -160,7 +160,6 @@ where
         }
 
         ret_val
-        //self.sort_complete
     }
 
     /// A step-wise reversal of the bubble sort algorithm. This function is the analog to BubbleSort::algo_next(). 
@@ -192,7 +191,7 @@ where
                         ret_val = AlgoPrevAction::NoSwap((swap_outer_idx, swap_inner_idx));
                     }
                 }
-                // Whether there was a swap recorded or not, back up the state of the algorithm.
+                // Whether there was a swap recorded or not, reverse the progress of the algorithm.
                 self.swap_events.remove(&(swap_outer_idx as u32, swap_inner_idx as u32));
 
                 self.inner_idx = swap_inner_idx;
