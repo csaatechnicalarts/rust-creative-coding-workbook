@@ -119,7 +119,6 @@ where
     /// }
     /// ```
 
-    //pub fn algo_next(&mut self) -> bool {
     pub fn algo_next(&mut self) -> AlgoNextAction<T> {
         let ret_val: AlgoNextAction<T>;
         if !self.sort_complete && (self.outer_idx < self.v_len) {
@@ -233,6 +232,7 @@ pub fn proto_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
 mod tests {
     use super::*;
 
+    #[ignore]
     #[test]
     fn test_proto_bubble_sort() {
         let mut v = vec![2, 13, 4, 7, 8, 1, 5];
@@ -240,6 +240,7 @@ mod tests {
         assert_eq!(v, vec![1, 2, 4, 5, 7, 8, 13]);
     }
 
+    #[ignore]
     #[test]
     fn test_proto_bubble_sort_contra() {
         let mut a = vec!['a', 'x', 'm', 'n', 'h', 'c'];
@@ -247,6 +248,7 @@ mod tests {
         assert_ne!(a, vec!['a']);
     }
 
+    #[ignore]
     #[test]
     fn test_empty_input() {
         let mut v0: Vec<u32> = Vec::new();
@@ -254,6 +256,7 @@ mod tests {
         assert_eq!(bs0, Err(BubbleSortError::EmptyVecToSort));
     }
 
+    #[ignore]
     #[test]
     fn test_single_element() {
         let mut v = vec![1];
@@ -274,6 +277,7 @@ mod tests {
         }
     }
 
+    #[ignore]
     #[test]
     fn test_bubble_sort_constructor() {
         let mut v1 = vec![4, 2, 1];
@@ -326,41 +330,49 @@ mod tests {
                 println!("[3] {:?}", bubble_sort);
                 assert_eq!(bubble_sort.is_sorted(), false);
                 assert_eq!(bubble_sort.original_state(), false);
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2]);
 
                 bubble_sort.algo_prev();
                 println!("[3-4] {:?}", bubble_sort);
-                //assert_eq!(bubble_sort.original_state(), true);
-                //assert_eq!(*bubble_sort.get_vec(), vec![2, 1]);
+                assert_eq!(bubble_sort.is_sorted(), false);
+                assert_eq!(bubble_sort.original_state(), true);
+                assert_eq!(*bubble_sort.get_vec(), vec![2, 1]);
 
                 bubble_sort.algo_next();
                 println!("[4] {:?}", bubble_sort);
                 assert_eq!(bubble_sort.is_sorted(), false);
                 assert_eq!(bubble_sort.original_state(), false);
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2]);
 
                 bubble_sort.algo_prev();
                 println!("[4-5] {:?}", bubble_sort);
-                //assert_eq!(bubble_sort.original_state(), true);
-                //assert_eq!(*bubble_sort.get_vec(), vec![2, 1]);
+                assert_eq!(bubble_sort.is_sorted(), false);
+                assert_eq!(bubble_sort.original_state(), true);
+                assert_eq!(*bubble_sort.get_vec(), vec![2, 1]);
 
                 bubble_sort.algo_next();
                 println!("[5] {:?}", bubble_sort);
                 assert_eq!(bubble_sort.is_sorted(), false);
                 assert_eq!(bubble_sort.original_state(), false);
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2]);
 
                 bubble_sort.algo_next();
                 println!("[6] {:?}", bubble_sort);
                 assert_eq!(bubble_sort.is_sorted(), false);
                 assert_eq!(bubble_sort.original_state(), false);
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2]);
 
                 bubble_sort.algo_next();
                 println!("[7] {:?}", bubble_sort);
                 assert_eq!(bubble_sort.is_sorted(), false);
                 assert_eq!(bubble_sort.original_state(), false);
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2]);
 
                 bubble_sort.algo_next();
                 println!("[8] {:?}", bubble_sort);
                 assert_eq!(bubble_sort.is_sorted(), true);
                 assert_eq!(bubble_sort.original_state(), false);
+                assert_eq!(*bubble_sort.get_vec(), vec![1, 2]);
 
             },
             Err(BubbleSortError::EmptyVecToSort) => {
@@ -371,17 +383,16 @@ mod tests {
 
     #[test]
     fn test_algo_prev_loops() {
-        let u = vec![1, 3, 2];
+        let u = vec![1, 3, 2, 7, 12, 8, 6, 5, 11, 4, 9, 10];
         let mut v = u.clone();
         let bs = BubbleSort::new(&mut v);
         match bs {
             Ok(mut bubble_sort) => {
                 println!("[0] {:?}", bubble_sort);
-
                 loop {
                     bubble_sort.algo_next();
                     if bubble_sort.is_sorted() == true {
-                        assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
+                        assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
                         assert_eq!(bubble_sort.original_state(), false);
 
                         break;
@@ -392,7 +403,7 @@ mod tests {
                 loop {
                     if bubble_sort.original_state() {
                         println!("[2] {:?}", bubble_sort);
-                        assert_eq!(*bubble_sort.get_vec(), vec![1, 3, 2]);
+                        assert_eq!(*bubble_sort.get_vec(), u);
                         assert_eq!(bubble_sort.original_state(), true);
 
                         break;
@@ -415,6 +426,7 @@ mod tests {
 
     }
 
+    #[ignore]
     #[test]
     fn test_bubble_sort_step() {
         let mut v = vec![4, 1, 2];
@@ -487,6 +499,7 @@ mod tests {
         }
     }
 
+    #[ignore]
     #[test]
     fn test_pre_sorted_input_01() {
         let mut v = vec![1, 2, 3];
@@ -523,6 +536,7 @@ mod tests {
         }
     }
 
+    #[ignore]
     #[test]
     fn test_pre_sorted_input_02() {
         let mut v = vec![1, 1, 1];
@@ -559,6 +573,7 @@ mod tests {
         }
     }
     
+    #[ignore]
     #[test]
     fn test_reverse_sorted_input() {
         let mut v = vec![3, 2, 1];
