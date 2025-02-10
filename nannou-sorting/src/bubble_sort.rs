@@ -255,7 +255,31 @@ mod tests {
     fn test_empty_input() {
         let mut v0: Vec<u32> = Vec::new();
         let bs0 = BubbleSort::new(&mut v0);
-        assert_eq!(bs0, Err(BubbleSortError::EmptyVecToSort));
+        assert_eq!(bs0, Err("BubbleSort::new() needs a non-empty vector parameter."));
+
+        let mut default_vec = vec![3, 2, 1];
+        let default_vec_len = default_vec.len() as u32;
+        let mut bs1 = BubbleSort::new(&mut v0).unwrap_or_else(|err| {
+            println!("\n[Err]: {}\nUsing default vector instead.\n", err);
+
+            BubbleSort {
+                v: &mut default_vec,
+                v_len: default_vec_len,
+                outer_idx: 0,
+                inner_idx: 0,
+                sort_complete: false,
+                swap_events: BTreeMap::new()
+            }
+        });
+
+        loop {
+            bs1.algo_next();
+            if bs1.is_sorted() {
+                assert_eq!(*bs1.get_vec(), vec![1, 2, 3]);
+
+                break;
+            }
+        }
     }
 
     #[test]
@@ -272,8 +296,8 @@ mod tests {
                 assert_eq!(bubble_sort.is_sorted(), true);
                 println!("{:?}", bubble_sort);
             },
-            Err(BubbleSortError::EmptyVecToSort) => {
-                println!("\nEmpty vector, nothing to sort!");
+            Err(msg) => {
+                println!("{msg}");
             }
         }
     }
@@ -282,7 +306,7 @@ mod tests {
     fn test_bubble_sort_constructor() {
         let mut v1 = vec![4, 2, 1];
         let bs1 = BubbleSort::new(&mut v1);
-        assert_ne!(bs1, Err(BubbleSortError::EmptyVecToSort));
+        assert_ne!(bs1, Err("BubbleSort::new() needs a non-empty vector parameter."));
 
         let bs = bs1.unwrap();
         assert_eq!(bs.v, &vec![4, 2, 1]);
@@ -297,6 +321,7 @@ mod tests {
         assert_eq!(bs.inner_idx, 0);
     }
 
+    
     #[test]
     fn test_algo_prev_basic() {
         let mut v = vec![2, 1];
@@ -375,12 +400,13 @@ mod tests {
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2]);
 
             },
-            Err(BubbleSortError::EmptyVecToSort) => {
-                println!("\nEmpty vector, nothing to sort!");
+            Err(msg) => {
+                println!("{msg}");
             }
         }
     }
 
+    
     #[test]
     fn test_algo_prev_loops() {
         let u = vec![1, 3, 2, 7, 12, 8, 6, 5, 11, 4, 9, 10];
@@ -414,13 +440,13 @@ mod tests {
                     }
                 }
             },
-            Err(BubbleSortError::EmptyVecToSort) => {
-                println!("\nEmpty vector, nothing to sort!");
+            Err(msg) => {
+                println!("{msg}");
             }
         }
     }
 
-    #[ignore]
+    
     #[test]
     fn test_algo_prev_sorted_vec() {
         let mut u = vec![1, 2, 3];
@@ -428,7 +454,7 @@ mod tests {
 
     }
 
-    #[ignore]
+    
     #[test]
     fn test_bubble_sort_step() {
         let mut v = vec![4, 1, 2];
@@ -495,13 +521,13 @@ mod tests {
                 println!("Step-wise bubble sort\t{:?}\n", bubble_sort.get_vec());
                 //println!("{:#?}", bubble_sort);
             }
-            Err(BubbleSortError::EmptyVecToSort) => {
-                println!("\nEmpty vector, nothing to sort!");
+            Err(msg) => {
+                println!("{msg}");
             }
         }
     }
 
-    #[ignore]
+    
     #[test]
     fn test_pre_sorted_input_01() {
         let mut v = vec![1, 2, 3];
@@ -532,13 +558,13 @@ mod tests {
                     }
                 }
             }
-            Err(BubbleSortError::EmptyVecToSort) => {
-                println!("\nEmpty vector, nothing to sort!");
+            Err(msg) => {
+                println!("{msg}");
             }
         }
     }
 
-    #[ignore]
+    
     #[test]
     fn test_pre_sorted_input_02() {
         let mut v = vec![1, 1, 1];
@@ -569,13 +595,13 @@ mod tests {
                     }
                 }
             }
-            Err(BubbleSortError::EmptyVecToSort) => {
-                println!("\nEmpty vector, nothing to sort!");
+            Err(msg) => {
+                println!("{msg}");
             }
         }
     }
     
-    #[ignore]
+    
     #[test]
     fn test_reverse_sorted_input() {
         let mut v = vec![3, 2, 1];
@@ -606,8 +632,8 @@ mod tests {
                     }
                 }
             }
-            Err(BubbleSortError::EmptyVecToSort) => {
-                println!("\nEmpty vector, nothing to sort!");
+            Err(msg) => {
+                println!("{msg}");
             }
         }
     }
