@@ -9,11 +9,6 @@
 use std::collections::BTreeMap;
 use std::fmt::Debug;
 
-#[derive(Debug, PartialEq)]
-pub enum BubbleSortError {
-    EmptyVecToSort,
-}
-
 pub enum AlgoPrevAction<T> {
     UndoSwap((u32, u32), (T, T)),
     NoSwap((u32, u32)),
@@ -55,18 +50,25 @@ where
     /// # Example Usage:
     ///
     /// ```
-    /// let mut bs = BubbleSort::new(&mut v);
-    /// match bs {
-    ///     Ok(bubble_sort) => { // Run the bubble sort algorithm in this block.
-    ///        ...
-    ///     },
-    ///     _ => { // Handle errors here.
-    ///        ...
-    ///     }
+    /// use std::process;
+    /// ...
+    ///
+    /// let mut bubble_sort = BubbleSort::new(&mut w).unwrap_or_else(|err| {
+    ///   println!("[Error]: {} Good-bye!", err);
+    ///   process::exit(1);
+    /// });
+    ///
+    /// loop {
+    ///   bubble_sort.algo_next();
+    ///   if bubble_sort.is_sorted() == true {
+    ///     println!("Step-wise bubble sort\t{:?}", bubble_sort.get_vec());
+    ///
+    ///     break;
+    ///   }
     /// }
     /// ```
 
-    pub fn new(v: &'a mut Vec<T>) -> Result<Self, BubbleSortError> {
+    pub fn new(v: &'a mut Vec<T>) -> Result<Self, &'static str> {
         if v.len() > 0 {
             let v_len = v.len() as u32;
             let bubble_sort = BubbleSort {
@@ -79,7 +81,7 @@ where
             };
             Ok(bubble_sort)
         } else {
-            Err(BubbleSortError::EmptyVecToSort)
+            Err("BubbleSort::new() needs a non-empty vector parameter.")
         }
     }
 
@@ -112,7 +114,8 @@ where
     /// let mut bubble_sort = BubbleSort::new(&mut v); // v is a vector of data to sort
     /// ...
     /// loop {
-    ///     if bubble_sort::algo_next() == true {
+    ///     bubble_sort::algo_next();
+    ///     if bubble_sortis_sorted() == true {
     ///         ...
     ///         break;
     ///     }
