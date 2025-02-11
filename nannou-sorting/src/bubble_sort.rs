@@ -252,6 +252,32 @@ mod tests {
     }
 
     #[test]
+    fn test_proto_vs_stepwise_sorting() {
+        let mut v = vec![2, 13, 4, 7, 8, 1, 5, 10, 11, 3];
+        let mut w = v.clone();
+        println!("Unsorted vector\t\t{:?}", v);
+
+        proto_bubble_sort(&mut w);
+        println!("Algorithmic bubble sort\t{w:?}");
+
+        // Safe to assume Result::Ok is returned, given that bubble_sort takes in 
+        // a mutable reference to a non-empty vector v.
+        let mut bubble_sort: BubbleSort<u32> = BubbleSort::new(&mut v).unwrap();
+        loop {
+            bubble_sort.algo_next();
+            if bubble_sort.is_sorted() == true {
+                println!("Step-wise bubble sort\t{:?}", bubble_sort.get_vec());
+
+                break;
+            }
+        }
+
+        // Duplicate asserts really, as bubble_sort owns the mutable reference to vector v.
+        assert_eq!(*bubble_sort.get_vec(), w);
+        assert_eq!(v, w);
+    }
+
+    #[test]
     fn test_empty_input() {
         let mut v0: Vec<u32> = Vec::new();
         let bs0 = BubbleSort::new(&mut v0);
