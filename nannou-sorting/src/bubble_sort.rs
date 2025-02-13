@@ -9,16 +9,18 @@
 use std::collections::BTreeMap;
 use std::fmt::Debug;
 
+#[derive(PartialEq, Debug)]
 pub enum AlgoPrevAction<T> {
     UndoSwap((u32, u32), (T, T)),
     NoSwap((u32, u32)),
-    EmptySwapEvents()
+    EmptySwapEvents(),
 }
 
+#[derive(PartialEq, Debug)]
 pub enum AlgoNextAction<T> {
     BookKeeping(),
     Swap((u32, u32), (T, T)),
-    NoSwap((u32, u32))
+    NoSwap((u32, u32)),
 }
 
 /// This type encapsulates the stream of data to sort. In the textbook version of the bubble sort algorithm, two nested loops drive the sorting process forward. For the step-wise implementation here, the BubbleSort type also extracts the two loop indices for keeping track of them globally.
@@ -31,7 +33,7 @@ pub enum AlgoNextAction<T> {
 #[derive(Debug, PartialEq)]
 pub struct BubbleSort<'a, T>
 where
-    T: PartialOrd + Debug + Clone
+    T: PartialOrd + Debug + Clone,
 {
     v: &'a mut Vec<T>,
     v_len: u32,
@@ -94,17 +96,19 @@ where
     }
 
     pub fn original_state(&self) -> bool {
-        return (self.outer_idx == 0) && (self.inner_idx == 0) 
-            && (self.sort_complete == false) && (self.swap_events.len() == 0);
+        return (self.outer_idx == 0)
+            && (self.inner_idx == 0)
+            && (self.sort_complete == false)
+            && (self.swap_events.len() == 0);
     }
 
     /// A step-wise version of the bubble sort algorithm. It is the analog to BubbleSort::algo_prev().
     /// As per the algorithm, algo_next() compares the data at i-th and i-plus-one-th indices and
     /// swaps them accordingly, or not. It then adjusts global variables that track the state of
     /// the algorithm's progress. The function also updates the swap_events mapping, recording the
-    /// occurrance or absence of a swap at a given (i-th, i-plus-one-th) combination. 
+    /// occurrance or absence of a swap at a given (i-th, i-plus-one-th) combination.
     ///
-    /// Note that calls to algo_next() do not always result in a comparison-and-swap operation. 
+    /// Note that calls to algo_next() do not always result in a comparison-and-swap operation.
     /// Instead algo_next() may take book-keeping steps to adjust global vaiables that track
     /// the algorithm's progress.
     ///
@@ -136,23 +140,26 @@ where
                     );
                     self.v
                         .swap(self.inner_idx as usize, self.inner_idx as usize + 1);
-                    
-                    ret_val = AlgoNextAction::Swap((self.outer_idx, self.inner_idx), 
-                                                     (self.v[self.inner_idx as usize].clone(), 
-                                                     self.v[self.inner_idx as usize + 1].clone())
-                              );
+
+                    ret_val = AlgoNextAction::Swap(
+                        (self.outer_idx, self.inner_idx),
+                        (
+                            self.v[self.inner_idx as usize].clone(),
+                            self.v[self.inner_idx as usize + 1].clone(),
+                        ),
+                    );
                 } else {
                     // No swap occured.
                     self.swap_events
                         .insert((self.outer_idx, self.inner_idx), None);
-                
+
                     ret_val = AlgoNextAction::NoSwap((self.outer_idx, self.inner_idx));
                 }
                 self.inner_idx = self.inner_idx + 1;
             } else {
                 self.inner_idx = 0;
                 self.outer_idx = self.outer_idx + 1;
-            
+
                 ret_val = AlgoNextAction::BookKeeping();
             }
         } else {
@@ -164,12 +171,12 @@ where
         ret_val
     }
 
-    /// A step-wise reversal of the bubble sort algorithm. This function is the analog to BubbleSort::algo_next(). 
-    /// Calls to algo_next() update the swap_events map, archiving the presence or absense of data swaps, 
-    /// Option::Some<u32, u32> or Option::None respectively. A corresponding call to algo_prev() reverts the data 
+    /// A step-wise reversal of the bubble sort algorithm. This function is the analog to BubbleSort::algo_next().
+    /// Calls to algo_next() update the swap_events map, archiving the presence or absense of data swaps,
+    /// Option::Some(u32, u32) or Option::None respectively. A corresponding call to algo_prev() reverts the data
     /// stream and the global variables to their prior state, clearing the last entry to the swap_events map accordingly.
     /// This function ignores book-keeping steps taken in previous algo_next() calls.
-    
+
     pub fn algo_prev(&mut self) -> AlgoPrevAction<T> {
         let ret_val: AlgoPrevAction<T>;
         let last_swap_event = self.swap_events.last_key_value();
@@ -185,16 +192,20 @@ where
                         // ipp_val is the archived value at "i plus-plus", i.e. inner_idx + 1.
                         self.v[swap_inner_idx as usize] = i_val.clone();
                         self.v[swap_inner_idx as usize + 1] = ipp_val.clone();
-                
-                        ret_val = AlgoPrevAction::UndoSwap((swap_outer_idx, swap_inner_idx), (i_val.clone(), ipp_val.clone()));
-                    },
-                    None =>  {
+
+                        ret_val = AlgoPrevAction::UndoSwap(
+                            (swap_outer_idx, swap_inner_idx),
+                            (i_val.clone(), ipp_val.clone()),
+                        );
+                    }
+                    None => {
                         // No exchange between i_val and ipp_val had transpired. Do nothing.
                         ret_val = AlgoPrevAction::NoSwap((swap_outer_idx, swap_inner_idx));
                     }
                 }
                 // Whether there was a swap recorded or not, reverse the progress of the algorithm.
-                self.swap_events.remove(&(swap_outer_idx as u32, swap_inner_idx as u32));
+                self.swap_events
+                    .remove(&(swap_outer_idx as u32, swap_inner_idx as u32));
 
                 self.inner_idx = swap_inner_idx;
                 self.outer_idx = swap_outer_idx;
@@ -202,11 +213,11 @@ where
                 if self.sort_complete == true {
                     self.sort_complete = false;
                 }
-            },
+            }
             None => {
                 // Empty swap_events map. Nothing to undo.
                 ret_val = AlgoPrevAction::EmptySwapEvents();
-            } 
+            }
         }
 
         ret_val
@@ -214,7 +225,7 @@ where
 }
 
 /// Textbook implementation of bubble sort, mainly for reference.
-pub fn proto_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
+pub fn canonical_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
     for p in 0..v.len() {
         let mut sorted = true;
         for i in 0..(v.len() - 1) - p {
@@ -236,18 +247,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_proto_bubble_sort() {
+    fn test_canonical_bubble_sort() {
         let mut v = vec![2, 13, 4, 7, 8, 1, 5];
         let mut w = v.clone();
-        proto_bubble_sort(&mut w);
+        canonical_bubble_sort(&mut w);
         v.sort();
         assert_eq!(w, v);
     }
 
     #[test]
-    fn test_proto_bubble_sort_contra() {
+    fn test_canonical_bubble_sort_contra() {
         let mut a = vec!['a', 'x', 'm', 'n', 'h', 'c'];
-        proto_bubble_sort(&mut a);
+        canonical_bubble_sort(&mut a);
         assert_ne!(a, vec!['a']);
     }
 
@@ -257,10 +268,10 @@ mod tests {
         let mut w = v.clone();
         println!("Unsorted vector\t\t{:?}", v);
 
-        proto_bubble_sort(&mut w);
+        canonical_bubble_sort(&mut w);
         println!("Algorithmic bubble sort\t{w:?}");
 
-        // Safe to assume Result::Ok is returned, given that bubble_sort takes in 
+        // Safe to assume Result::Ok is returned, given that bubble_sort takes in
         // a mutable reference to a non-empty vector v.
         let mut bubble_sort: BubbleSort<u32> = BubbleSort::new(&mut v).unwrap();
         loop {
@@ -281,7 +292,10 @@ mod tests {
     fn test_empty_input() {
         let mut v0: Vec<u32> = Vec::new();
         let bs0 = BubbleSort::new(&mut v0);
-        assert_eq!(bs0, Err("BubbleSort::new() needs a non-empty vector parameter."));
+        assert_eq!(
+            bs0,
+            Err("BubbleSort::new() needs a non-empty vector parameter.")
+        );
 
         let mut default_vec = vec![3, 2, 1];
         let default_vec_len = default_vec.len() as u32;
@@ -294,7 +308,7 @@ mod tests {
                 outer_idx: 0,
                 inner_idx: 0,
                 sort_complete: false,
-                swap_events: BTreeMap::new()
+                swap_events: BTreeMap::new(),
             }
         });
 
@@ -321,7 +335,7 @@ mod tests {
                 assert_eq!(bubble_sort.v_len, 1);
                 assert_eq!(bubble_sort.is_sorted(), true);
                 println!("{:?}", bubble_sort);
-            },
+            }
             Err(msg) => {
                 println!("{msg}");
             }
@@ -332,7 +346,10 @@ mod tests {
     fn test_bubble_sort_constructor() {
         let mut v1 = vec![4, 2, 1];
         let bs1 = BubbleSort::new(&mut v1);
-        assert_ne!(bs1, Err("BubbleSort::new() needs a non-empty vector parameter."));
+        assert_ne!(
+            bs1,
+            Err("BubbleSort::new() needs a non-empty vector parameter.")
+        );
 
         let bs = bs1.unwrap();
         assert_eq!(bs.v, &vec![4, 2, 1]);
@@ -347,7 +364,6 @@ mod tests {
         assert_eq!(bs.inner_idx, 0);
     }
 
-    
     #[test]
     fn test_algo_prev_basic() {
         let mut v = vec![2, 1];
@@ -424,15 +440,13 @@ mod tests {
                 assert_eq!(bubble_sort.is_sorted(), true);
                 assert_eq!(bubble_sort.original_state(), false);
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2]);
-
-            },
+            }
             Err(msg) => {
                 println!("{msg}");
             }
         }
     }
 
-    
     #[test]
     fn test_algo_prev_loops() {
         let u = vec![1, 3, 2, 7, 12, 8, 6, 5, 11, 4, 9, 10];
@@ -465,22 +479,52 @@ mod tests {
                         bubble_sort.algo_prev();
                     }
                 }
-            },
+            }
             Err(msg) => {
                 println!("{msg}");
             }
         }
     }
 
-    
     #[test]
     fn test_algo_prev_sorted_vec() {
         let mut u = vec![1, 2, 3];
-        let _bs_01 = BubbleSort::new(&mut u);
+        let bs_01 = BubbleSort::new(&mut u);
+        if let Ok(mut bubble_sort) = bs_01 {
+            bubble_sort.algo_prev();
+            assert_eq!(bubble_sort.original_state(), true);
+            assert_eq!(bubble_sort.is_sorted(), false);
 
+            while bubble_sort.is_sorted() == false {
+                bubble_sort.algo_next();
+            }
+            println!("{:?}", bubble_sort);
+            assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 3]);
+            assert_eq!(bubble_sort.original_state(), false);
+
+            let prev_action = bubble_sort.algo_prev();
+            println!("{:?}", bubble_sort);
+
+            assert_eq!(prev_action, AlgoPrevAction::NoSwap((1, 0)));
+            assert_eq!(bubble_sort.is_sorted(), false);
+            assert_eq!(bubble_sort.original_state(), false);
+
+            let prev_action = bubble_sort.algo_prev();
+            println!("{:?}", bubble_sort);
+
+            assert_eq!(prev_action, AlgoPrevAction::NoSwap((0, 1)));
+            assert_eq!(bubble_sort.is_sorted(), false);
+            assert_eq!(bubble_sort.original_state(), false);
+
+            let prev_action = bubble_sort.algo_prev();
+            println!("{:?}", bubble_sort);
+
+            assert_eq!(prev_action, AlgoPrevAction::NoSwap((0, 0)));
+            assert_eq!(bubble_sort.is_sorted(), false);
+            assert_eq!(bubble_sort.original_state(), true);
+        }
     }
 
-    
     #[test]
     fn test_bubble_sort_step() {
         let mut v = vec![4, 1, 2];
@@ -510,7 +554,7 @@ mod tests {
 
                 // In this next function call the bubble sort algorithm is paused. Only
                 // housekeeping tasks are done here, adjusting the inner and outer indices.
-                
+
                 bubble_sort.algo_next();
                 assert_eq!(*bubble_sort.get_vec(), vec![1, 2, 4]);
                 assert_eq!(bubble_sort.swap_events.len(), 2);
@@ -553,7 +597,6 @@ mod tests {
         }
     }
 
-    
     #[test]
     fn test_pre_sorted_input_01() {
         let mut v = vec![1, 2, 3];
@@ -590,7 +633,6 @@ mod tests {
         }
     }
 
-    
     #[test]
     fn test_pre_sorted_input_02() {
         let mut v = vec![1, 1, 1];
@@ -626,8 +668,7 @@ mod tests {
             }
         }
     }
-    
-    
+
     #[test]
     fn test_reverse_sorted_input() {
         let mut v = vec![3, 2, 1];
