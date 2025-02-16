@@ -11,16 +11,32 @@ use std::fmt::Debug;
 
 #[derive(PartialEq, Debug)]
 pub enum AlgoPrevAction<T> {
-    UndoSwap((u32, u32), (T, T)),
-    NoSwap((u32, u32)),
-    EmptySwapEvents(),
+    UndoSwap { 
+        outer_idx: u32, 
+        inner_idx: u32,
+        i_val: T, 
+        ipp_val: T
+    },
+    NoSwap {
+        outer_idx: u32,
+        inner_idx: u32
+    },
+    EmptySwapEvents()
 }
 
 #[derive(PartialEq, Debug)]
 pub enum AlgoNextAction<T> {
-    BookKeeping(),
-    Swap((u32, u32), (T, T)),
-    NoSwap((u32, u32)),
+    Swap {
+        outer_idx: u32, 
+        inner_idx: u32, 
+        i_val: T, 
+        ipp_val: T
+    },
+    NoSwap {
+        outer_idx: u32, 
+        inner_idx: u32
+    },
+    BookKeeping()
 }
 
 /// This type encapsulates the stream of data to sort. In the textbook version of the bubble sort algorithm, two nested loops drive the sorting process forward. For the step-wise implementation here, the BubbleSort type also extracts the two loop indices for keeping track of them globally.
@@ -141,19 +157,21 @@ where
                     self.v
                         .swap(self.inner_idx as usize, self.inner_idx as usize + 1);
 
-                    ret_val = AlgoNextAction::Swap(
-                        (self.outer_idx, self.inner_idx),
-                        (
-                            self.v[self.inner_idx as usize].clone(),
-                            self.v[self.inner_idx as usize + 1].clone(),
-                        ),
-                    );
+                    ret_val = AlgoNextAction::Swap {
+                        outer_idx: self.outer_idx, 
+                        inner_idx: self.inner_idx,
+                        i_val: self.v[self.inner_idx as usize].clone(),
+                        ipp_val: self.v[self.inner_idx as usize + 1].clone(),
+                    };
                 } else {
                     // No swap occured.
                     self.swap_events
                         .insert((self.outer_idx, self.inner_idx), None);
 
-                    ret_val = AlgoNextAction::NoSwap((self.outer_idx, self.inner_idx));
+                    ret_val = AlgoNextAction::NoSwap {
+                        outer_idx: self.outer_idx, 
+                        inner_idx: self.inner_idx
+                    };
                 }
                 self.inner_idx = self.inner_idx + 1;
             } else {
@@ -193,14 +211,25 @@ where
                         self.v[swap_inner_idx as usize] = i_val.clone();
                         self.v[swap_inner_idx as usize + 1] = ipp_val.clone();
 
-                        ret_val = AlgoPrevAction::UndoSwap(
+                        /*ret_val = AlgoPrevAction::UndoSwap(
                             (swap_outer_idx, swap_inner_idx),
                             (i_val.clone(), ipp_val.clone()),
-                        );
-                    }
+                        );*/
+                    
+                        ret_val = AlgoPrevAction::UndoSwap {
+                            outer_idx: swap_outer_idx, 
+                            inner_idx: swap_inner_idx,
+                            i_val: i_val.clone(), 
+                            ipp_val: ipp_val.clone()
+                        }
+}
                     None => {
                         // No exchange between i_val and ipp_val had transpired. Do nothing.
-                        ret_val = AlgoPrevAction::NoSwap((swap_outer_idx, swap_inner_idx));
+                        //ret_val = AlgoPrevAction::NoSwap((swap_outer_idx, swap_inner_idx));
+                        ret_val = AlgoPrevAction::NoSwap {
+                            outer_idx: swap_outer_idx, 
+                            inner_idx: swap_inner_idx
+                        };
                     }
                 }
                 // Whether there was a swap recorded or not, reverse the progress of the algorithm.
@@ -505,21 +534,21 @@ mod tests {
             let prev_action = bubble_sort.algo_prev();
             println!("{:?}", bubble_sort);
 
-            assert_eq!(prev_action, AlgoPrevAction::NoSwap((1, 0)));
+            assert_eq!(prev_action, AlgoPrevAction::NoSwap { outer_idx: 1, inner_idx: 0 });
             assert_eq!(bubble_sort.is_sorted(), false);
             assert_eq!(bubble_sort.original_state(), false);
 
             let prev_action = bubble_sort.algo_prev();
             println!("{:?}", bubble_sort);
 
-            assert_eq!(prev_action, AlgoPrevAction::NoSwap((0, 1)));
+            assert_eq!(prev_action, AlgoPrevAction::NoSwap { outer_idx: 0, inner_idx: 1 });
             assert_eq!(bubble_sort.is_sorted(), false);
             assert_eq!(bubble_sort.original_state(), false);
 
             let prev_action = bubble_sort.algo_prev();
             println!("{:?}", bubble_sort);
 
-            assert_eq!(prev_action, AlgoPrevAction::NoSwap((0, 0)));
+            assert_eq!(prev_action, AlgoPrevAction::NoSwap { outer_idx: 0, inner_idx: 0 });
             assert_eq!(bubble_sort.is_sorted(), false);
             assert_eq!(bubble_sort.original_state(), true);
         }
