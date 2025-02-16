@@ -6,8 +6,9 @@
 //! Combined with GUI functionality provided by [Nannou,](https://github.com/nannou-org/nannou) we can graphically walk through
 //! (or walk back) the steps of the bubble sort algorithm.
 
-use std::collections::BTreeMap;
+use std::fmt;
 use std::fmt::Debug;
+use std::collections::BTreeMap;
 
 #[derive(PartialEq, Debug)]
 pub enum AlgoPrevAction<T> {
@@ -24,6 +25,19 @@ pub enum AlgoPrevAction<T> {
     EmptySwapEvents()
 }
 
+impl<T: std::fmt::Display> fmt::Display for AlgoPrevAction<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            AlgoPrevAction::UndoSwap {outer_idx: o_idx, inner_idx: i_idx, i_val: iv, ipp_val: ippv } 
+                => write!(f, "outer_idx: {}, inner_idx: {}, ith_val: {}, inext_val: {}",
+                      o_idx, i_idx, iv, ippv),
+            AlgoPrevAction::NoSwap { outer_idx: o_idx, inner_idx: i_idx }
+                => write!(f, "outer_idx: {}, inner_idx: {}", o_idx, i_idx),
+            AlgoPrevAction::EmptySwapEvents() => write!(f, "No swap events recorded.")
+        }
+    }
+}
+
 #[derive(PartialEq, Debug)]
 pub enum AlgoNextAction<T> {
     Swap {
@@ -37,6 +51,19 @@ pub enum AlgoNextAction<T> {
         inner_idx: u32
     },
     BookKeeping()
+}
+
+impl<T: std::fmt::Display> fmt::Display for AlgoNextAction<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            AlgoNextAction::Swap { outer_idx: o_idx, inner_idx: i_idx, i_val: iv, ipp_val: ippv } 
+                => write!(f, "outer_idx: {}, inner_idx: {}, i_val: {}, ipp_val: {}", 
+                          o_idx, i_idx, iv, ippv),
+            AlgoNextAction::NoSwap { outer_idx: o_idx, inner_idx: i_idx}
+                => write!(f, "outer_idx: {}, inner_idx: {}", o_idx, i_idx),
+            AlgoNextAction::BookKeeping() => write!(f, "Only book-keeping operations were performed.")
+        }
+    }
 }
 
 /// This type encapsulates the stream of data to sort. In the textbook version of the bubble sort algorithm, two nested loops drive the sorting process forward. For the step-wise implementation here, the BubbleSort type also extracts the two loop indices for keeping track of them globally.
@@ -275,6 +302,7 @@ pub fn canonical_bubble_sort<T: PartialOrd + Debug>(v: &mut [T]) {
 mod tests {
     use super::*;
 
+    
     #[test]
     fn test_canonical_bubble_sort() {
         let mut v = vec![2, 13, 4, 7, 8, 1, 5];
@@ -284,6 +312,7 @@ mod tests {
         assert_eq!(w, v);
     }
 
+    
     #[test]
     fn test_canonical_bubble_sort_contra() {
         let mut a = vec!['a', 'x', 'm', 'n', 'h', 'c'];
@@ -291,6 +320,7 @@ mod tests {
         assert_ne!(a, vec!['a']);
     }
 
+    
     #[test]
     fn test_proto_vs_stepwise_sorting() {
         let mut v = vec![2, 13, 4, 7, 8, 1, 5, 10, 11, 3];
@@ -317,6 +347,7 @@ mod tests {
         assert_eq!(v, w);
     }
 
+    
     #[test]
     fn test_empty_input() {
         let mut v0: Vec<u32> = Vec::new();
@@ -351,6 +382,7 @@ mod tests {
         }
     }
 
+    
     #[test]
     fn test_single_element() {
         let mut v = vec![1];
@@ -371,6 +403,7 @@ mod tests {
         }
     }
 
+    
     #[test]
     fn test_bubble_sort_constructor() {
         let mut v1 = vec![4, 2, 1];
@@ -393,6 +426,7 @@ mod tests {
         assert_eq!(bs.inner_idx, 0);
     }
 
+    
     #[test]
     fn test_algo_prev_basic() {
         let mut v = vec![2, 1];
@@ -476,6 +510,7 @@ mod tests {
         }
     }
 
+    
     #[test]
     fn test_algo_prev_loops() {
         let u = vec![1, 3, 2, 7, 12, 8, 6, 5, 11, 4, 9, 10];
@@ -535,6 +570,7 @@ mod tests {
             println!("{:?}", bubble_sort);
 
             assert_eq!(prev_action, AlgoPrevAction::NoSwap { outer_idx: 1, inner_idx: 0 });
+            println!("{:#?}", prev_action);
             assert_eq!(bubble_sort.is_sorted(), false);
             assert_eq!(bubble_sort.original_state(), false);
 
@@ -542,6 +578,7 @@ mod tests {
             println!("{:?}", bubble_sort);
 
             assert_eq!(prev_action, AlgoPrevAction::NoSwap { outer_idx: 0, inner_idx: 1 });
+            println!("{:#?}", prev_action);
             assert_eq!(bubble_sort.is_sorted(), false);
             assert_eq!(bubble_sort.original_state(), false);
 
@@ -549,11 +586,13 @@ mod tests {
             println!("{:?}", bubble_sort);
 
             assert_eq!(prev_action, AlgoPrevAction::NoSwap { outer_idx: 0, inner_idx: 0 });
+            println!("{:#?}", prev_action);
             assert_eq!(bubble_sort.is_sorted(), false);
             assert_eq!(bubble_sort.original_state(), true);
         }
     }
 
+    
     #[test]
     fn test_bubble_sort_step() {
         let mut v = vec![4, 1, 2];
@@ -626,6 +665,7 @@ mod tests {
         }
     }
 
+    
     #[test]
     fn test_pre_sorted_input_01() {
         let mut v = vec![1, 2, 3];
@@ -662,6 +702,7 @@ mod tests {
         }
     }
 
+    
     #[test]
     fn test_pre_sorted_input_02() {
         let mut v = vec![1, 1, 1];
@@ -698,6 +739,7 @@ mod tests {
         }
     }
 
+    
     #[test]
     fn test_reverse_sorted_input() {
         let mut v = vec![3, 2, 1];
