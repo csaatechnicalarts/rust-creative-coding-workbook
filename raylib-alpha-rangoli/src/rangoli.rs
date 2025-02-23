@@ -7,7 +7,7 @@ pub static UPPER_BOUND: i32 = 26;
 
 pub struct AlphabetSet {
     a_vec: Vec<char>,
-    delimeter: char, 
+    delimiter: char, 
     false_token: char
 }
 
@@ -15,7 +15,7 @@ impl AlphabetSet {
     pub fn new(lower: char, upper: char) -> Self {
         Self {
             a_vec: (lower..=upper).into_iter().collect::<Vec<char>>(),
-            delimeter: '-',
+            delimiter: '-',
             false_token: ' '
         }
     }
@@ -24,8 +24,8 @@ impl AlphabetSet {
         &self.a_vec
     }
 
-    fn get_delimeter(&self) -> char {
-        self.delimeter
+    fn get_delimiter(&self) -> char {
+        self.delimiter
     }
 
     fn get_false_token(&self) -> char {
@@ -87,7 +87,7 @@ impl RangoliTextPattern {
             }
         }
 
-        r_line.join(&alphabet.get_delimeter().to_string())
+        r_line.join(&alphabet.get_delimiter().to_string())
     }
 
     pub fn iter(&self) -> std::slice::Iter<'_, std::string::String> {
