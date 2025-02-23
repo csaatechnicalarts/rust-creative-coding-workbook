@@ -49,13 +49,7 @@ impl RangoliTextPattern {
             Self::generate_text_line(n - 1, x, alphabet)
         }).collect::<Vec<String>>();
         
-        let last_rline = rtp.rangoli_lines.last();
-
-        if let Some(r_string) = last_rline {
-            rtp.max_width = r_string.chars().count() as i32;
-        } else {
-            panic!("Error: rangoli_lines.last() yielded None!");
-        }
+        rtp.max_width = rtp.rangoli_lines.iter().map(|x| x.len()).max().unwrap() as i32;
 
         rtp
     }
