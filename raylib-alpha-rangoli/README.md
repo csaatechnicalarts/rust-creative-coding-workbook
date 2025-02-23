@@ -11,9 +11,9 @@ At the root level of this repo, we build and execute the workspace using Cargo:
 
 `$> cargo build -p raylib-alpha-rangoli`
 
-`$> cargo run -p raylib-alpha-rangoli -- -n 5` 
+`$> cargo run -p raylib-alpha-rangoli -- -n 5 -f a -l z` 
 
-The second Cargo command uses the first five letters of the alphabet, `a-e`, to generate the rangoli pattern. The text output is the first example shown above. The second one shows a 12 letter pattern.
+The second Cargo command uses the first five letters, 'a-e', of the alphabet (ranging from 'a' to 'z') to generate the rangoli pattern. The text output is the first example shown above. The second one shows a 12 letter pattern.
 
 ## Raylib Version: From Text to Glyph
 
