@@ -5,20 +5,48 @@ use std::{fmt, process};
 pub static LOWER_BOUND: i32 = 1;
 pub static UPPER_BOUND: i32 = 26;
 
+pub struct AlphabetSet {
+    a_vec: Vec<char>,
+    delimeter: char, 
+    false_token: char
+}
+
+impl AlphabetSet {
+    pub fn new(lower: char, upper: char) -> Self {
+        Self {
+            a_vec: (lower..=upper).into_iter().collect::<Vec<char>>(),
+            delimeter: '-',
+            false_token: ' '
+        }
+    }
+
+    pub fn get_alphabet(&self) -> &Vec<char> {
+        &self.a_vec
+    }
+
+    fn get_delimeter(&self) -> char {
+        self.delimeter
+    }
+
+    fn get_false_token(&self) -> char {
+        self.false_token
+    }
+}
+
 pub struct RangoliTextPattern {
     rangoli_lines: Vec<String>,
     max_width: i32,
 }
 
 impl RangoliTextPattern {
-    pub fn new(n: i32) -> Self {
+    pub fn new(n: i32, alphabet: &AlphabetSet) -> Self {
         let mut rtp = RangoliTextPattern {
             rangoli_lines: vec![],
             max_width: 0,
         };
 
         for i in (-1..=(n - 2)).rev() {
-            rtp.rangoli_lines.push(Self::generate_text_line(n - 1, i));
+            rtp.rangoli_lines.push(Self::generate_text_line(n - 1, i, alphabet));
         }
 
         let last_rline = rtp.rangoli_lines.last();
@@ -36,25 +64,30 @@ impl RangoliTextPattern {
         (&self.rangoli_lines, self.max_width as i32)
     }
 
-    fn generate_text_line(n: i32, m: i32) -> String {
-        let ascii_lower: [char; UPPER_BOUND as usize] = [
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-        ];
-
+    fn generate_text_line(n: i32, m: i32, alphabet: &AlphabetSet) -> String {
         let mut r_line: Vec<String> = vec![];
-
         let mut i = n;
 
         while i > m {
-            r_line.push(ascii_lower[i as usize].to_string());
+            let c = alphabet.a_vec.get(i as usize);
+            if let Some(token) = c {
+                r_line.push(token.to_string());
+            } else {
+                r_line.push(alphabet.get_false_token().to_string());
+            }
             i -= 1;
         }
 
         for j in (i + 2)..(n + 1) {
-            r_line.push(ascii_lower[j as usize].to_string());
+            let c = alphabet.a_vec.get(j as usize);
+            if let Some(token) = c {
+                r_line.push(token.to_string());
+            } else {
+                r_line.push(alphabet.get_false_token().to_string());
+            }
         }
-        r_line.join("-")
+
+        r_line.join(&alphabet.get_delimeter().to_string())
     }
 
     pub fn iter(&self) -> std::slice::Iter<'_, std::string::String> {
@@ -90,8 +123,9 @@ mod tests {
 
     #[test]
     fn test_vec_string() {
-        let rtp_01 = RangoliTextPattern::new(1);
-        let rtp_03 = RangoliTextPattern::new(3);
+        let alphabet_set = AlphabetSet::new('a', 'z');
+        let rtp_01 = RangoliTextPattern::new(1, &alphabet_set);
+        let rtp_03 = RangoliTextPattern::new(3, &alphabet_set);
 
         let (rtp_01_vec, _) = rtp_01.get_rangoli_text();
         assert_eq!(*rtp_01_vec.get(0).unwrap(), rtp_01_data[0]);
@@ -106,11 +140,12 @@ mod tests {
 
     #[test]
     fn test_iter_consume() {
-        let mut rtp_01 = RangoliTextPattern::new(1);
+        let alphabet_set = AlphabetSet::new('a', 'z');
+        let mut rtp_01 = RangoliTextPattern::new(1, &alphabet_set);
         assert_eq!(rtp_01_data[0], rtp_01.next().unwrap());
         assert_eq!(None, rtp_01.next());
 
-        let mut rtp_03 = RangoliTextPattern::new(3);
+        let mut rtp_03 = RangoliTextPattern::new(3, &alphabet_set);
         assert_eq!(rtp_03_data[2], rtp_03.next().unwrap());
         assert_eq!(rtp_03_data[1], rtp_03.next().unwrap());
         assert_eq!(rtp_03_data[0], rtp_03.next().unwrap());
@@ -119,7 +154,8 @@ mod tests {
 
     #[test]
     fn test_iter_consume_loop() {
-        let mut rtp_03 = RangoliTextPattern::new(3);
+        let alphabet_set = AlphabetSet::new('a', 'z');
+        let mut rtp_03 = RangoliTextPattern::new(3, &alphabet_set);
         let mut idx: i8 = 2;
         while idx >= 0 {
             assert_eq!(rtp_03_data[idx as usize], rtp_03.next().unwrap());
@@ -131,7 +167,8 @@ mod tests {
 
     #[test]
     fn test_iter_print_loop() {
-        let mut rtp_03 = RangoliTextPattern::new(3);
+        let alphabet_set = AlphabetSet::new('a', 'z');
+        let mut rtp_03 = RangoliTextPattern::new(3, &alphabet_set);
         println!();
         for (idx, line) in rtp_03.iter().enumerate() {
             println!("{idx}: {line}");

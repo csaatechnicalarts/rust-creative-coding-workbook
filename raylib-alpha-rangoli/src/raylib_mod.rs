@@ -4,7 +4,7 @@ use raylib::prelude::*;
 use std::collections::HashMap;
 use std::process;
 
-use crate::rangoli::RangoliTextPattern;
+use crate::rangoli::{AlphabetSet, RangoliTextPattern};
 
 pub const SCREEN_WIDTH: i32 = 1280;
 pub const SCREEN_HEIGHT: i32 = 1024;
@@ -34,6 +34,7 @@ pub struct RLDriver<'p> {
     rangoli_disp: Vec<Vec<AlphaToDisplay>>,
     // X-offset of a character of the given font set.
     alpha_offsets: HashMap<char, f32>,
+    alphabet_set: &'p AlphabetSet,
 }
 
 impl AlphaToDisplay {
@@ -89,8 +90,9 @@ impl<'p> RLDriver<'p> {
         thread: &'p RaylibThread,
         font: &'p Font,
         rangoli_text: &'p mut RangoliTextPattern,
+        alphabet_set: &'p AlphabetSet,
     ) -> RLDriver<'p> {
-        let (max_alpha_offset, alpha_offsets) = RLDriver::calc_alpha_offsets(&rl);
+        let (max_alpha_offset, alpha_offsets) = RLDriver::calc_alpha_offsets(&rl, alphabet_set);
         let mut outer_vec: Vec<Vec<AlphaToDisplay>> = Vec::new();
         let (rangoli_pattern, _) = rangoli_text.get_rangoli_text();
 
@@ -152,6 +154,7 @@ impl<'p> RLDriver<'p> {
             rangoli_text,
             rangoli_disp: rangoli_mirrored,
             alpha_offsets,
+            alphabet_set
         }
     }
 
@@ -173,11 +176,7 @@ impl<'p> RLDriver<'p> {
         retVal
     }
 
-    fn calc_alpha_offsets(rl: &RaylibHandle) -> (f32, HashMap<char, f32>) {
-        let ascii_lower: [char; 26 as usize] = [
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-        ];
+    fn calc_alpha_offsets(rl: &RaylibHandle, alphabet_set: &AlphabetSet) -> (f32, HashMap<char, f32>) {
         let mut ret_val: HashMap<char, f32> = HashMap::new();
         let mut max_alpha_offset: f32 = 0.0;
 
@@ -186,10 +185,17 @@ impl<'p> RLDriver<'p> {
 
         let mut tmp = [0u8; 4];
         for i in 0..26 {
+            let tok: char;
+            let c = alphabet_set.get_alphabet().get(i);
+
+            if let Some(token) = c {
+                tok = *token
+            } else {
+                tok = ' '
+            }
             let mut x_offset = (rl
-                .measure_text(ascii_lower[i].encode_utf8(&mut tmp), FONT_SIZE as i32)
-                / 2) as f32;
-            ret_val.insert(ascii_lower[i], x_offset);
+                .measure_text(tok.encode_utf8(&mut tmp), FONT_SIZE as i32) / 2) as f32;
+            ret_val.insert(tok, x_offset);
             if x_offset > max_alpha_offset {
                 max_alpha_offset = x_offset;
             }
