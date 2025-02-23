@@ -45,9 +45,9 @@ impl RangoliTextPattern {
             max_width: 0,
         };
 
-        for i in (-1..=(n - 2)).rev() {
-            rtp.rangoli_lines.push(Self::generate_text_line(n - 1, i, alphabet));
-        }
+        rtp.rangoli_lines = (-1..=(n - 2)).rev().map(|x| {
+            Self::generate_text_line(n - 1, x, alphabet)
+        }).collect::<Vec<String>>();
         
         let last_rline = rtp.rangoli_lines.last();
 
