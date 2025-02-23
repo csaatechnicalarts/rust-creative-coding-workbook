@@ -76,10 +76,9 @@ impl RangoliTextPattern {
             }
         }
 
-        // For every rangoli line there is a left hand and a right hand segment  
-        // of tokens to combine, with a pivotal token separating the two parts. 
-        // In the ranges of the two corresponding iterator chains, the starting value 
-        // ((m+1) or (m+2)) is the index to this pivotal token given the alphabet set.
+        // For every rangoli line there is a left hand and a right hand collection of letters to combine,
+        // with a pivotal letter separating the two. The initial value of m is the index 
+        // to this pivotal letter.
 
         let mut r_line = ((m+1)..=n).rev().map(|x| get_token(x, &alphabet)).collect::<Vec<String>>();
         let mut r_line_append = ((m+2)..(n+1)).map(|x| get_token(x, &alphabet)).collect::<Vec<String>>();
