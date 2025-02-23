@@ -45,10 +45,17 @@ impl RangoliTextPattern {
             max_width: 0,
         };
 
-        rtp.rangoli_lines = (-1..=(n - 2)).rev().map(|x| {
+        let mut rangoli_lines = (-1..=(n - 2)).rev().map(|x| {
             Self::generate_text_line(n - 1, x, alphabet)
         }).collect::<Vec<String>>();
-        
+
+        // Up till this point, rangoli_lines has only the upper half of
+        // the overall rangoli pattern. The lower half is simply a mirror.
+
+        let mut mirror_lines = rangoli_lines.clone().into_iter().rev().skip(1).collect::<Vec<String>>();
+        rangoli_lines.append(&mut mirror_lines);
+       
+        rtp.rangoli_lines = rangoli_lines;
         rtp.max_width = rtp.rangoli_lines.iter().map(|x| x.len()).max().unwrap() as i32;
 
         rtp

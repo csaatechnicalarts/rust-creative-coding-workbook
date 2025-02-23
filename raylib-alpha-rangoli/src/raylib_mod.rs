@@ -93,7 +93,7 @@ impl<'p> RLDriver<'p> {
         alphabet_set: &'p AlphabetSet,
     ) -> RLDriver<'p> {
         let (max_alpha_offset, alpha_offsets) = RLDriver::calc_alpha_offsets(&rl, alphabet_set);
-        let mut outer_vec: Vec<Vec<AlphaToDisplay>> = Vec::new();
+        let mut alpha_display: Vec<Vec<AlphaToDisplay>> = Vec::new();
         let (rangoli_pattern, _) = rangoli_text.get_rangoli_text();
 
         for (line_index, r_line) in rangoli_pattern.iter().enumerate() {
@@ -131,19 +131,7 @@ impl<'p> RLDriver<'p> {
                 }
             }
 
-            outer_vec.push(inner_vec);
-        }
-
-        // The outer_vec represents the upper half of the rangoli display.
-        // rangoli_mirrored contains both the upper and lower halves.
-
-        let outer_vec_len = outer_vec.len();
-        let mut rangoli_mirrored = outer_vec.clone();
-
-        let mut line_ctr = 1.0;
-        for inner_vec in (&outer_vec[..(outer_vec_len - 1)]).into_iter().rev() {
-            rangoli_mirrored.push(RLDriver::mirror_inner_vec(&line_ctr, &inner_vec));
-            line_ctr += 1.0;
+            alpha_display.push(inner_vec);
         }
 
         RLDriver {
@@ -152,28 +140,10 @@ impl<'p> RLDriver<'p> {
             font,
             fps: DEFAULT_FPS,
             rangoli_text,
-            rangoli_disp: rangoli_mirrored,
+            rangoli_disp: alpha_display,
             alpha_offsets,
             alphabet_set
         }
-    }
-
-    fn mirror_inner_vec(line_ctr: &f32, inner_vec: &Vec<AlphaToDisplay>) -> Vec<AlphaToDisplay> {
-        let mut retVal = Vec::new();
-
-        for a2d_old in inner_vec {
-            let a2d_new = AlphaToDisplay {
-                alpha: a2d_old.alpha,
-                coord: Vector2::new(
-                    a2d_old.coord.x,
-                    (a2d_old.coord.y + (2.0 * line_ctr * ALPHA_HEIGHT_PAD)),
-                ),
-            };
-
-            retVal.push(a2d_new);
-        }
-
-        retVal
     }
 
     fn calc_alpha_offsets(rl: &RaylibHandle, alphabet_set: &AlphabetSet) -> (f32, HashMap<char, f32>) {
