@@ -184,18 +184,20 @@ impl<'p> RLDriver<'p> {
         // a char in Rust is a 4 byte UTF8, unlike ASCII.
 
         let mut tmp = [0u8; 4];
-        for i in 0..26 {
+        for i in 0..alphabet_set.get_alphabet().len() {
             let tok: char;
             let c = alphabet_set.get_alphabet().get(i);
 
             if let Some(token) = c {
                 tok = *token
             } else {
-                tok = ' '
+                tok = alphabet_set.get_false_token()
             }
+
             let mut x_offset = (rl
                 .measure_text(tok.encode_utf8(&mut tmp), FONT_SIZE as i32) / 2) as f32;
             ret_val.insert(tok, x_offset);
+
             if x_offset > max_alpha_offset {
                 max_alpha_offset = x_offset;
             }

@@ -24,11 +24,11 @@ impl AlphabetSet {
         &self.a_vec
     }
 
-    fn get_delimiter(&self) -> char {
+    pub fn get_delimiter(&self) -> char {
         self.delimiter
     }
 
-    fn get_false_token(&self) -> char {
+    pub fn get_false_token(&self) -> char {
         self.false_token
     }
 }
