@@ -1,5 +1,3 @@
-#![allow(warnings)]
-
 use raylib::prelude::*;
 use std::collections::HashMap;
 use std::process;
@@ -11,7 +9,6 @@ pub const SCREEN_HEIGHT: i32 = 1024;
 pub const DEFAULT_FPS: u32 = 24;
 pub const FONT_SIZE: f32 = 18.0;
 
-//const ALPHA_DELIM: char = '-';
 const ALPHA_WIDTH_PAD: f32 = 3.0;
 const ALPHA_HEIGHT_PAD: f32 = 18.5;
 const X_OFFSET_THRESHOLD: f32 = 2.0;
@@ -110,8 +107,8 @@ impl<'p> RLDriver<'p> {
                 .filter(|char_index| char_index % 2 == 0 )
                 .map(|char_index| {
                 // A line in a rangoli pattern always has an odd number of tokens,
-                // each one indexed by an even number. Odd indices always refer to
-                // the delimeter character, '-' in "c-b-a-b-c" for example.
+                // Odd indices always refer to the delimiter character, 
+                // '-' in "c-b-a-b-c" for example, which is skipped over.
  
                 let alpha_char = r_line.chars().nth(char_index);
                 if let Some(c) = alpha_char {
