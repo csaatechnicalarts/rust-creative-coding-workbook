@@ -50,7 +50,7 @@ impl RangoliTextPattern {
         }).collect::<Vec<String>>();
 
         // Up till this point, rangoli_lines has only the upper half of
-        // the overall rangoli pattern. The lower half is simply a mirror.
+        // the overall rangoli pattern. The lower half simply mirrors the upper part.
 
         let mut mirror_lines = rangoli_lines.clone().into_iter().rev().skip(1).collect::<Vec<String>>();
         rangoli_lines.append(&mut mirror_lines);
@@ -79,8 +79,8 @@ impl RangoliTextPattern {
 
         // For every rangoli line there is a left hand and a right hand segment  
         // of tokens to combine, with a pivotal token separating the two parts. 
-        // In the ranges of the two corresponding iterator chains, the starting value 
-        // ((m+1) or (m+2)) is the index to this pivotal token given the alphabet set.
+        // Given an alphabet set, the starting value ((m+1) or (m+2)-1) of the
+        // iterator chain is the index of this pivotal token.
 
         let mut r_line = ((m+1)..=n).rev().map(|x| get_token(x, &alphabet)).collect::<Vec<String>>();
         let mut r_line_append = ((m+2)..(n+1)).map(|x| get_token(x, &alphabet)).collect::<Vec<String>>();
