@@ -23,20 +23,6 @@ struct AlphaToDisplay {
     coord: Vector2,
 }
 
-pub struct RLDriver<'p> {
-    rl: &'p mut RaylibHandle,
-    thread: &'p RaylibThread,
-    fps: u32,
-    font: &'p Font,
-    // Generated text pattern owned by the rangoli module.
-    rangoli_text: &'p RangoliTextPattern,
-    // Glyph representation of the rangoli pattern to display.
-    rangoli_disp: Vec<Vec<AlphaToDisplay>>,
-    // X-offset of a character of the given font set.
-    alpha_offsets: HashMap<char, f32>,
-    alphabet_set: &'p AlphabetSet,
-}
-
 impl AlphaToDisplay {
     fn new(
         c: char,
@@ -84,6 +70,21 @@ impl AlphaToDisplay {
     }
 }
 
+pub struct RLDriver<'p> {
+    rl: &'p mut RaylibHandle,
+    thread: &'p RaylibThread,
+    fps: u32,
+    font: &'p Font,
+    // Generated text pattern owned by the rangoli module.
+    rangoli_text: &'p RangoliTextPattern,
+    // Glyph representation of the rangoli pattern to display.
+    rangoli_disp: Vec<Vec<AlphaToDisplay>>,
+    // X-offset of a character of the given font set.
+    alpha_offsets: HashMap<char, f32>,
+    // Range of tokens, typically a-z or A-Z
+    alphabet_set: &'p AlphabetSet,
+}
+
 impl<'p> RLDriver<'p> {
     pub fn build(
         rl: &'p mut RaylibHandle,
@@ -93,46 +94,42 @@ impl<'p> RLDriver<'p> {
         alphabet_set: &'p AlphabetSet,
     ) -> RLDriver<'p> {
         let (max_alpha_offset, alpha_offsets) = RLDriver::calc_alpha_offsets(&rl, alphabet_set);
-        let mut alpha_display: Vec<Vec<AlphaToDisplay>> = Vec::new();
         let (rangoli_pattern, _) = rangoli_text.get_rangoli_text();
 
-        for (line_index, r_line) in rangoli_pattern.iter().enumerate() {
-            let mut inner_vec: Vec<AlphaToDisplay> = Vec::new();
-
-            // The middle character is always 'a', the pivot of the range of characters
-            // incrementing to the left and right respectively:
-            // i.e. ["a", "b-a-b", "c-b-a-b-c"] for an n=3 rangoli pattern.
+        let mut alpha_display = rangoli_pattern.iter()
+            .enumerate()
+            .map(|(line_index, r_line)| {
+            // The middle token is always the first in the alphabet, 'a' for example.
+            // It is the pivot of the range of tokens incrementing to the left 
+            // and right respectively: i.e. ["a", "b-a-b", "c-b-a-b-c"] 
+            // for an n=3 rangoli pattern.
 
             let mid_index: usize = r_line.chars().count() / 2;
-            for char_index in 0..r_line.chars().count() {
-                // A line in a rangoli pattern always has an odd number of alphabets,
+
+            let mut inner_vec = (0..r_line.chars().count())
+                .filter(|char_index| char_index % 2 == 0 )
+                .map(|char_index| {
+                // A line in a rangoli pattern always has an odd number of tokens,
                 // each one indexed by an even number. Odd indices always refer to
                 // the delimeter character, '-' in "c-b-a-b-c" for example.
-                //
-                // We could have done the following, but modulo arithmetic is always
-                // faster than a memory lookup and logical comparison combo operation:
-                // if r_line.chars().nth(j as usize) != Some(ALPHA_DELIM) {...}
-
-                if char_index % 2 == 0 {
-                    let alpha_char = r_line.chars().nth(char_index);
-
-                    if let Some(c) = alpha_char {
-                        inner_vec.push(AlphaToDisplay::new(
+ 
+                let alpha_char = r_line.chars().nth(char_index);
+                if let Some(c) = alpha_char {
+                    AlphaToDisplay::new(
                             c,
                             line_index,
                             mid_index,
                             char_index,
                             &alpha_offsets,
                             max_alpha_offset,
-                        ));
-                    } else {
-                        panic!("Error: r_line.chars().nth(char_index) yielded None!");
-                    }
+                    )
+                } else {
+                    panic!("Error: r_line.chars().nth(char_index) yielded None!");
                 }
-            }
+            }).collect::<Vec<AlphaToDisplay>>();
 
-            alpha_display.push(inner_vec);
-        }
+            inner_vec
+        }).collect::<Vec<Vec<AlphaToDisplay>>>();
 
         RLDriver {
             rl,
