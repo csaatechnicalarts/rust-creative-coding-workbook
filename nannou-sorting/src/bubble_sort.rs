@@ -320,6 +320,71 @@ mod tests {
         assert_ne!(a, vec!['a']);
     }
 
+    #[test]
+    fn test_primitive_types() {
+        let mut v_int = vec![2, 3, 1];
+        let mut v_float = vec![2.2, 3.3, 1.1];
+        let mut v_char = vec!['2', '3', '1'];
+        let mut v_str = vec!["2", "3", "1"];
+        let mut v_bool = vec![false, true, false, true];
+    
+        let mut bs_int_type: BubbleSort<u32> = BubbleSort::new(&mut v_int).unwrap();
+        loop {
+            bs_int_type.algo_next();
+            if bs_int_type.is_sorted() == true {
+                println!("Step-wise bubble sort\t{:?}", bs_int_type.get_vec());
+
+                break;
+            }
+        }
+        assert_eq!(v_int, vec![1, 2, 3]);
+ 
+        let mut bs_float_type: BubbleSort<f32> = BubbleSort::new(&mut v_float).unwrap();
+        loop {
+            bs_float_type.algo_next();
+            if bs_float_type.is_sorted() == true {
+                println!("Step-wise bubble sort\t{:?}", bs_float_type.get_vec());
+
+                break;
+            }
+        }
+        assert_eq!(v_float, vec![1.1, 2.2, 3.3]);
+ 
+        let mut bs_char_type: BubbleSort<char> = BubbleSort::new(&mut v_char).unwrap();
+        loop {
+            bs_char_type.algo_next();
+            if bs_char_type.is_sorted() == true {
+                println!("Step-wise bubble sort\t{:?}", bs_char_type.get_vec());
+
+                break;
+            }
+        }
+        assert_eq!(v_char, vec!['1', '2', '3']);
+ 
+        let mut bs_str_type: BubbleSort<&str> = BubbleSort::new(&mut v_str).unwrap();
+        loop {
+            bs_str_type.algo_next();
+            if bs_str_type.is_sorted() == true {
+                println!("Step-wise bubble sort\t{:?}", bs_str_type.get_vec());
+
+                break;
+            }
+        }
+        assert_eq!(v_str, vec!["1", "2", "3"]);
+ 
+        let mut bs_bool_type: BubbleSort<bool> = BubbleSort::new(&mut v_bool).unwrap();
+        loop {
+            bs_bool_type.algo_next();
+            if bs_bool_type.is_sorted() == true {
+                println!("Step-wise bubble sort\t{:?}", bs_bool_type.get_vec());
+
+                break;
+            }
+        }
+        // false -> 0 and true -> 1; sorted accordingly.
+        assert_eq!(v_bool, vec![false, false, true, true]);
+    }
+
     
     #[test]
     fn test_proto_vs_stepwise_sorting() {
